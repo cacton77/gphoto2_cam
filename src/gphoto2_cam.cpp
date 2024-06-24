@@ -46,26 +46,28 @@ extern "C" {
 
 #include "opencv2/imgproc.hpp"
 
-#include "usb_cam/usb_cam.hpp"
-#include "usb_cam/conversions.hpp"
-#include "usb_cam/utils.hpp"
+#include "gphoto2_cam/gphoto2_cam.hpp"
+#include "gphoto2_cam/conversions.hpp"
+#include "gphoto2_cam/utils.hpp"
 
 
-namespace usb_cam
+#include <gphoto2/gphoto2-camera.h>
+
+namespace gphoto2_cam
 {
 
 using utils::io_method_t;
 
 
-UsbCam::UsbCam()
-: m_device_name(), m_io(io_method_t::IO_METHOD_MMAP), m_fd(-1),
-  m_number_of_buffers(4), m_buffers(new usb_cam::utils::buffer[m_number_of_buffers]), m_image(),
+gPhoto2Cam::gPhoto2Cam()
+  : m_device_name(), m_io(io_method_t::IO_METHOD_MMAP), m_fd(-1),
+  m_number_of_buffers(4), m_buffers(new gphoto2_cam::utils::buffer[m_number_of_buffers]), m_image(),
   m_avframe(NULL), m_avcodec(NULL), m_avoptions(NULL),
   m_avcodec_context(NULL), m_is_capturing(false), m_framerate(0),
-  m_epoch_time_shift_us(usb_cam::utils::get_epoch_time_shift_us()), m_supported_formats()
+  m_epoch_time_shift_us(gphoto2_cam::utils::get_epoch_time_shift_us()), m_supported_formats()
 {}
 
-UsbCam::~UsbCam()
+gPhoto2Cam::~gPhoto2Cam()
 {
   shutdown();
 }
@@ -77,7 +79,7 @@ UsbCam::~UsbCam()
 /// @param src a pointer to a V4L2 source image
 /// @param dest a pointer to where the source image should be copied (if required)
 /// @param bytes_used number of bytes used by the src buffer
-void UsbCam::process_image(const char * src, char * & dest, const int & bytes_used)
+void gPhoto2Cam::process_image(const char * src, char * & dest, const int & bytes_used)
 {
   // TODO(flynneva): could we skip the copy here somehow?
   // If no conversion required, just copy the image from V4L2 buffer
@@ -88,7 +90,7 @@ void UsbCam::process_image(const char * src, char * & dest, const int & bytes_us
   }
 }
 
-void UsbCam::read_frame()
+void gPhoto2Cam::read_frame()
 {
   struct v4l2_buffer buf;
   unsigned int i;
@@ -113,7 +115,7 @@ void UsbCam::read_frame()
       buf.memory = V4L2_MEMORY_MMAP;
 
       // Get current v4l2 pixel format
-      if (-1 == usb_cam::utils::xioctl(m_fd, static_cast<int>(VIDIOC_G_FMT), &m_image.v4l2_fmt)) {
+      if (-1 == gphoto2_cam::utils::xioctl(m_fd, static_cast<int>(VIDIOC_G_FMT), &m_image.v4l2_fmt)) {
         switch (errno) {
           case EAGAIN:
             return;
@@ -122,7 +124,7 @@ void UsbCam::read_frame()
         }
       }
       /// Dequeue buffer with the new image
-      if (-1 == usb_cam::utils::xioctl(m_fd, static_cast<int>(VIDIOC_DQBUF), &buf)) {
+      if (-1 == gphoto2_cam::utils::xioctl(m_fd, static_cast<int>(VIDIOC_DQBUF), &buf)) {
         switch (errno) {
           case EAGAIN:
             return;
@@ -132,13 +134,13 @@ void UsbCam::read_frame()
       }
 
       // Get timestamp from V4L2 image buffer
-      m_image.stamp = usb_cam::utils::calc_img_timestamp(buf.timestamp, m_epoch_time_shift_us);
+      m_image.stamp = gphoto2_cam::utils::calc_img_timestamp(buf.timestamp, m_epoch_time_shift_us);
 
       assert(buf.index < m_number_of_buffers);
       process_image(m_buffers[buf.index].start, m_image.data, buf.bytesused);
 
       /// Requeue buffer so it can be reused
-      if (-1 == usb_cam::utils::xioctl(m_fd, static_cast<int>(VIDIOC_QBUF), &buf)) {
+      if (-1 == gphoto2_cam::utils::xioctl(m_fd, static_cast<int>(VIDIOC_QBUF), &buf)) {
         throw std::runtime_error("Unable to exchange buffer with the driver");
       }
       return;
@@ -148,7 +150,7 @@ void UsbCam::read_frame()
       buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
       buf.memory = V4L2_MEMORY_USERPTR;
 
-      if (-1 == usb_cam::utils::xioctl(m_fd, static_cast<int>(VIDIOC_DQBUF), &buf)) {
+      if (-1 == gphoto2_cam::utils::xioctl(m_fd, static_cast<int>(VIDIOC_DQBUF), &buf)) {
         switch (errno) {
           case EAGAIN:
             return;
@@ -158,7 +160,7 @@ void UsbCam::read_frame()
       }
 
       // Get timestamp from V4L2 image buffer
-      m_image.stamp = usb_cam::utils::calc_img_timestamp(buf.timestamp, m_epoch_time_shift_us);
+      m_image.stamp = gphoto2_cam::utils::calc_img_timestamp(buf.timestamp, m_epoch_time_shift_us);
 
       for (i = 0; i < m_number_of_buffers; ++i) {
         if (buf.m.userptr == reinterpret_cast<uint64_t>(m_buffers[i].start) && \
@@ -170,7 +172,7 @@ void UsbCam::read_frame()
 
       assert(i < m_number_of_buffers);
       process_image(reinterpret_cast<const char *>(buf.m.userptr), m_image.data, buf.bytesused);
-      if (-1 == usb_cam::utils::xioctl(m_fd, static_cast<int>(VIDIOC_QBUF), &buf)) {
+      if (-1 == gphoto2_cam::utils::xioctl(m_fd, static_cast<int>(VIDIOC_QBUF), &buf)) {
         throw std::runtime_error("Unable to exchange buffer with driver");
       }
       return;
@@ -179,7 +181,7 @@ void UsbCam::read_frame()
   }
 }
 
-void UsbCam::stop_capturing()
+void gPhoto2Cam::stop_capturing()
 {
   if (!m_is_capturing) {return;}
 
@@ -193,7 +195,7 @@ void UsbCam::stop_capturing()
     case io_method_t::IO_METHOD_MMAP:
     case io_method_t::IO_METHOD_USERPTR:
       type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-      if (-1 == usb_cam::utils::xioctl(m_fd, VIDIOC_STREAMOFF, &type)) {
+      if (-1 == gphoto2_cam::utils::xioctl(m_fd, VIDIOC_STREAMOFF, &type)) {
         // Set capturing variable to true again, since stream was not stopped successfully
         m_is_capturing = true;
         throw std::runtime_error("Unable to stop capturing stream");
@@ -204,7 +206,7 @@ void UsbCam::stop_capturing()
   }
 }
 
-void UsbCam::start_capturing()
+void gPhoto2Cam::start_capturing()
 {
   if (m_is_capturing) {return;}
 
@@ -225,14 +227,14 @@ void UsbCam::start_capturing()
         buf.memory = V4L2_MEMORY_MMAP;
         buf.index = i;
 
-        if (-1 == usb_cam::utils::xioctl(m_fd, static_cast<int>(VIDIOC_QBUF), &buf)) {
+        if (-1 == gphoto2_cam::utils::xioctl(m_fd, static_cast<int>(VIDIOC_QBUF), &buf)) {
           throw std::runtime_error("Unable to queue image buffer");
         }
       }
 
       // Start the stream
       type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-      if (-1 == usb_cam::utils::xioctl(m_fd, VIDIOC_STREAMON, &type)) {
+      if (-1 == gphoto2_cam::utils::xioctl(m_fd, VIDIOC_STREAMON, &type)) {
         throw std::runtime_error("Unable to start stream");
       }
       break;
@@ -248,14 +250,14 @@ void UsbCam::start_capturing()
         buf.m.userptr = reinterpret_cast<uint64_t>(m_buffers[i].start);
         buf.length = m_buffers[i].length;
 
-        if (-1 == usb_cam::utils::xioctl(m_fd, static_cast<int>(VIDIOC_QBUF), &buf)) {
+        if (-1 == gphoto2_cam::utils::xioctl(m_fd, static_cast<int>(VIDIOC_QBUF), &buf)) {
           throw std::runtime_error("Unable to configure stream");
         }
       }
 
       type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 
-      if (-1 == usb_cam::utils::xioctl(m_fd, VIDIOC_STREAMON, &type)) {
+      if (-1 == gphoto2_cam::utils::xioctl(m_fd, VIDIOC_STREAMON, &type)) {
         throw std::runtime_error("Unable to start stream");
       }
       break;
@@ -265,12 +267,12 @@ void UsbCam::start_capturing()
   m_is_capturing = true;
 }
 
-void UsbCam::uninit_device()
+void gPhoto2Cam::uninit_device()
 {
   m_buffers.reset();
 }
 
-void UsbCam::init_read()
+void gPhoto2Cam::init_read()
 {
   if (!m_buffers) {
     throw std::overflow_error("Out of memory");
@@ -283,7 +285,7 @@ void UsbCam::init_read()
   }
 }
 
-void UsbCam::init_mmap()
+void gPhoto2Cam::init_mmap()
 {
   struct v4l2_requestbuffers req;
 
@@ -293,7 +295,7 @@ void UsbCam::init_mmap()
   req.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
   req.memory = V4L2_MEMORY_MMAP;
 
-  if (-1 == usb_cam::utils::xioctl(m_fd, static_cast<int>(VIDIOC_REQBUFS), &req)) {
+  if (-1 == gphoto2_cam::utils::xioctl(m_fd, static_cast<int>(VIDIOC_REQBUFS), &req)) {
     if (EINVAL == errno) {
       throw std::runtime_error("Device does not support memory mapping");
     } else {
@@ -318,7 +320,7 @@ void UsbCam::init_mmap()
     buf.memory = V4L2_MEMORY_MMAP;
     buf.index = current_buffer;
 
-    if (-1 == usb_cam::utils::xioctl(m_fd, static_cast<int>(VIDIOC_QUERYBUF), &buf)) {
+    if (-1 == gphoto2_cam::utils::xioctl(m_fd, static_cast<int>(VIDIOC_QUERYBUF), &buf)) {
       throw std::runtime_error("Unable to query status of buffer");
     }
 
@@ -334,7 +336,7 @@ void UsbCam::init_mmap()
   }
 }
 
-void UsbCam::init_userp()
+void gPhoto2Cam::init_userp()
 {
   struct v4l2_requestbuffers req;
   unsigned int page_size;
@@ -348,7 +350,7 @@ void UsbCam::init_userp()
   req.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
   req.memory = V4L2_MEMORY_USERPTR;
 
-  if (-1 == usb_cam::utils::xioctl(m_fd, VIDIOC_REQBUFS, &req)) {
+  if (-1 == gphoto2_cam::utils::xioctl(m_fd, VIDIOC_REQBUFS, &req)) {
     if (EINVAL == errno) {
       throw std::invalid_argument("Device does not support user pointer i/o");
     } else {
@@ -371,13 +373,13 @@ void UsbCam::init_userp()
   }
 }
 
-void UsbCam::init_device()
+void gPhoto2Cam::init_device()
 {
   struct v4l2_capability cap;
   struct v4l2_cropcap cropcap;
   struct v4l2_crop crop;
 
-  if (-1 == usb_cam::utils::xioctl(m_fd, static_cast<int>(VIDIOC_QUERYCAP), &cap)) {
+  if (-1 == gphoto2_cam::utils::xioctl(m_fd, static_cast<int>(VIDIOC_QUERYCAP), &cap)) {
     if (EINVAL == errno) {
       throw std::invalid_argument("Device is not a V4L2 device");
     } else {
@@ -411,11 +413,11 @@ void UsbCam::init_device()
 
   cropcap.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 
-  if (0 == usb_cam::utils::xioctl(m_fd, static_cast<int>(VIDIOC_CROPCAP), &cropcap)) {
+  if (0 == gphoto2_cam::utils::xioctl(m_fd, static_cast<int>(VIDIOC_CROPCAP), &cropcap)) {
     crop.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
     crop.c = cropcap.defrect; /* reset to default */
 
-    if (-1 == usb_cam::utils::xioctl(m_fd, VIDIOC_S_CROP, &crop)) {
+    if (-1 == gphoto2_cam::utils::xioctl(m_fd, VIDIOC_S_CROP, &crop)) {
       switch (errno) {
         case EINVAL:
           /* Cropping not supported. */
@@ -437,14 +439,14 @@ void UsbCam::init_device()
 
   // Set v4l2 capture format
   // Note VIDIOC_S_FMT may change width and height
-  if (-1 == usb_cam::utils::xioctl(m_fd, static_cast<int>(VIDIOC_S_FMT), &m_image.v4l2_fmt)) {
+  if (-1 == gphoto2_cam::utils::xioctl(m_fd, static_cast<int>(VIDIOC_S_FMT), &m_image.v4l2_fmt)) {
     throw strerror(errno);
   }
 
   struct v4l2_streamparm stream_params;
   memset(&stream_params, 0, sizeof(stream_params));
   stream_params.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-  if (usb_cam::utils::xioctl(m_fd, static_cast<int>(VIDIOC_G_PARM), &stream_params) < 0) {
+  if (gphoto2_cam::utils::xioctl(m_fd, static_cast<int>(VIDIOC_G_PARM), &stream_params) < 0) {
     throw strerror(errno);
   }
 
@@ -456,7 +458,7 @@ void UsbCam::init_device()
   // and match closest to what user put in.
   stream_params.parm.capture.timeperframe.numerator = 1;
   stream_params.parm.capture.timeperframe.denominator = m_framerate;
-  if (usb_cam::utils::xioctl(m_fd, static_cast<int>(VIDIOC_S_PARM), &stream_params) < 0) {
+  if (gphoto2_cam::utils::xioctl(m_fd, static_cast<int>(VIDIOC_S_PARM), &stream_params) < 0) {
     throw std::invalid_argument("Couldn't set camera framerate");
   }
 
@@ -476,8 +478,25 @@ void UsbCam::init_device()
   }
 }
 
-void UsbCam::close_device()
+void gPhoto2Cam::close_device()
 {
+  // Device is already closed
+  if (m_camera == NULL) {return;}
+
+  // Close the camera connection
+  int ret = gp_camera_exit(m_camera, m_context);
+  if (ret < GP_OK) {
+    throw "Failed to close camera connection";
+  }
+
+  // Free the camera and context resources
+  gp_camera_free(m_camera);
+  gp_context_unref(m_context);
+  
+  // Set the camera and context pointers to NULL
+  m_camera = NULL;
+  m_context = NULL;
+
   // Device is already closed
   if (m_fd == -1) {return;}
 
@@ -488,8 +507,32 @@ void UsbCam::close_device()
   m_fd = -1;
 }
 
-void UsbCam::open_device()
+void gPhoto2Cam::open_device()
 {
+  int ret;
+  Camera *camera = NULL;
+  GPContext *context;
+
+  // Create a new context
+  context = gp_context_new();
+
+  // Initialize the camera
+  ret = gp_camera_new(&camera);
+  if (ret < GP_OK) {
+    throw "Failed to initialize camera";
+  }
+
+  // Open a session with the camera
+  ret = gp_camera_init(camera, context);
+  if (ret < GP_OK) {
+    throw "Failed to open session with camera";
+  }
+
+  // Store the camera and context for later use
+  m_camera = camera;
+  m_context = context;
+
+  /// REMOVE THE REST
   struct stat st;
 
   if (-1 == stat(m_device_name.c_str(), &st)) {
@@ -507,7 +550,7 @@ void UsbCam::open_device()
   }
 }
 
-void UsbCam::configure(
+void gPhoto2Cam::configure(
   parameters_t & parameters, const io_method_t & io_method)
 {
   m_device_name = parameters.device_name;
@@ -529,12 +572,12 @@ void UsbCam::configure(
   init_device();
 }
 
-void UsbCam::start()
+void gPhoto2Cam::start()
 {
   start_capturing();
 }
 
-void UsbCam::shutdown()
+void gPhoto2Cam::shutdown()
 {
   stop_capturing();
   uninit_device();
@@ -543,7 +586,7 @@ void UsbCam::shutdown()
 
 /// @brief Grab new image from V4L2 device, return pointer to image
 /// @return pointer to image data
-char * UsbCam::get_image()
+char * gPhoto2Cam::get_image()
 {
   if ((m_image.width == 0) || (m_image.height == 0)) {
     return nullptr;
@@ -555,7 +598,7 @@ char * UsbCam::get_image()
 
 /// @brief Overload get_image so users can pass in an image pointer to fill
 /// @param destination destination to fill in with image
-void UsbCam::get_image(char * destination)
+void gPhoto2Cam::get_image(char * destination)
 {
   if ((m_image.width == 0) || (m_image.height == 0)) {
     return;
@@ -566,7 +609,7 @@ void UsbCam::get_image(char * destination)
   grab_image();
 }
 
-std::vector<capture_format_t> UsbCam::get_supported_formats()
+std::vector<capture_format_t> gPhoto2Cam::get_supported_formats()
 {
   m_supported_formats.clear();
   struct v4l2_fmtdesc * current_format = new v4l2_fmtdesc();
@@ -576,7 +619,7 @@ std::vector<capture_format_t> UsbCam::get_supported_formats()
   current_format->type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
   current_format->index = 0;
   for (current_format->index = 0;
-    usb_cam::utils::xioctl(
+    gphoto2_cam::utils::xioctl(
       m_fd, VIDIOC_ENUM_FMT, current_format) == 0;
     ++current_format->index)
   {
@@ -584,7 +627,7 @@ std::vector<capture_format_t> UsbCam::get_supported_formats()
     current_size->pixel_format = current_format->pixelformat;
 
     for (current_size->index = 0;
-      usb_cam::utils::xioctl(
+      gphoto2_cam::utils::xioctl(
         m_fd, VIDIOC_ENUM_FRAMESIZES, current_size) == 0;
       ++current_size->index)
     {
@@ -593,7 +636,7 @@ std::vector<capture_format_t> UsbCam::get_supported_formats()
       current_interval->width = current_size->discrete.width;
       current_interval->height = current_size->discrete.height;
       for (current_interval->index = 0;
-        usb_cam::utils::xioctl(
+        gphoto2_cam::utils::xioctl(
           m_fd, VIDIOC_ENUM_FRAMEINTERVALS, current_interval) == 0;
         ++current_interval->index)
       {
@@ -614,7 +657,7 @@ std::vector<capture_format_t> UsbCam::get_supported_formats()
   return m_supported_formats;
 }
 
-void UsbCam::grab_image()
+void gPhoto2Cam::grab_image()
 {
   fd_set fds;
   struct timeval tv;
@@ -648,7 +691,7 @@ void UsbCam::grab_image()
 }
 
 // enables/disables auto focus
-bool UsbCam::set_auto_focus(int value)
+bool gPhoto2Cam::set_auto_focus(int value)
 {
   struct v4l2_queryctrl queryctrl;
   struct v4l2_ext_control control;
@@ -656,7 +699,7 @@ bool UsbCam::set_auto_focus(int value)
   memset(&queryctrl, 0, sizeof(queryctrl));
   queryctrl.id = V4L2_CID_FOCUS_AUTO;
 
-  if (-1 == usb_cam::utils::xioctl(m_fd, static_cast<int>(VIDIOC_QUERYCTRL), &queryctrl)) {
+  if (-1 == gphoto2_cam::utils::xioctl(m_fd, static_cast<int>(VIDIOC_QUERYCTRL), &queryctrl)) {
     if (errno != EINVAL) {
       std::cerr << "VIDIOC_QUERYCTRL" << std::endl;
       return false;
@@ -672,7 +715,7 @@ bool UsbCam::set_auto_focus(int value)
     control.id = V4L2_CID_FOCUS_AUTO;
     control.value = value;
 
-    if (-1 == usb_cam::utils::xioctl(m_fd, static_cast<int>(VIDIOC_S_CTRL), &control)) {
+    if (-1 == gphoto2_cam::utils::xioctl(m_fd, static_cast<int>(VIDIOC_S_CTRL), &control)) {
       std::cerr << "VIDIOC_S_CTRL" << std::endl;
       return false;
     }
@@ -686,11 +729,11 @@ bool UsbCam::set_auto_focus(int value)
 * @param param The name of the parameter to set
 * @param param The value to assign
 */
-bool UsbCam::set_v4l_parameter(const std::string & param, int value)
+bool gPhoto2Cam::set_gphoto2_parameter(const std::string & param, int value)
 {
   char buf[33];
   snprintf(buf, sizeof(buf), "%i", value);
-  return set_v4l_parameter(param, buf);
+  return set_gphoto2_parameter(param, buf);
 }
 
 /**
@@ -699,7 +742,7 @@ bool UsbCam::set_v4l_parameter(const std::string & param, int value)
 * @param param The name of the parameter to set
 * @param param The value to assign
 */
-bool UsbCam::set_v4l_parameter(const std::string & param, const std::string & value)
+bool gPhoto2Cam::set_gphoto2_parameter(const std::string & param, const std::string & value)
 {
   int retcode = 0;
   // build the command
@@ -725,10 +768,10 @@ bool UsbCam::set_v4l_parameter(const std::string & param, const std::string & va
       retcode = 1;
     }
   } else {
-    std::cerr << "usb_cam_node could not run '" << cmd.c_str() << "'" << std::endl;
+    std::cerr << "gphoto2_cam_node could not run '" << cmd.c_str() << "'" << std::endl;
     retcode = 1;
   }
   return retcode;
 }
 
-}  // namespace usb_cam
+}  // namespace gphoto2_cam

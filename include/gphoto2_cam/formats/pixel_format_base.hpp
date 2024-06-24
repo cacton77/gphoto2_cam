@@ -34,10 +34,10 @@
 
 #include "linux/videodev2.h"
 
-#include "usb_cam/constants.hpp"
-#include "usb_cam/conversions.hpp"
+#include "gphoto2_cam/constants.hpp"
+#include "gphoto2_cam/conversions.hpp"
 
-namespace usb_cam
+namespace gphoto2_cam
 {
 namespace formats
 {
@@ -84,7 +84,7 @@ public:
 
   /// @brief String value of V4L2 capture pixel format
   /// @return std::string V4L2 capture pixel format
-  inline std::string v4l2_str() {return usb_cam::conversions::FCC2S(m_v4l2);}
+  inline std::string v4l2_str() {return gphoto2_cam::conversions::FCC2S(m_v4l2);}
 
   /// @brief Name of output pixel (encoding) format to ROS
   /// @return
@@ -102,7 +102,7 @@ public:
   inline uint8_t byte_depth() {return m_bit_depth / 8;}
 
   /// @brief True if the current pixel format requires a call to the `convert` method
-  /// Used in the usb_cam library logic to determine if a plain `memcopy` call can be
+  /// Used in the gphoto2_cam library logic to determine if a plain `memcopy` call can be
   /// used instead of a call to the `convert` method of this class.
   /// @return
   inline bool requires_conversion() {return m_requires_conversion;}
@@ -124,16 +124,16 @@ public:
   inline bool is_color()
   {
     return
-      m_ros == usb_cam::constants::RGB8 ||
-      m_ros == usb_cam::constants::BGR8 ||
-      m_ros == usb_cam::constants::RGBA8 ||
-      m_ros == usb_cam::constants::BGRA8 ||
-      m_ros == usb_cam::constants::RGB16 ||
-      m_ros == usb_cam::constants::BGR16 ||
-      m_ros == usb_cam::constants::RGBA16 ||
-      m_ros == usb_cam::constants::BGRA16 ||
-      m_ros == usb_cam::constants::NV21 ||
-      m_ros == usb_cam::constants::NV24;
+      m_ros == gphoto2_cam::constants::RGB8 ||
+      m_ros == gphoto2_cam::constants::BGR8 ||
+      m_ros == gphoto2_cam::constants::RGBA8 ||
+      m_ros == gphoto2_cam::constants::BGRA8 ||
+      m_ros == gphoto2_cam::constants::RGB16 ||
+      m_ros == gphoto2_cam::constants::BGR16 ||
+      m_ros == gphoto2_cam::constants::RGBA16 ||
+      m_ros == gphoto2_cam::constants::BGRA16 ||
+      m_ros == gphoto2_cam::constants::NV21 ||
+      m_ros == gphoto2_cam::constants::NV24;
   }
 
   /// @brief Returns if the final output format is monocolor (gray)
@@ -143,8 +143,8 @@ public:
   inline bool is_mono()
   {
     return
-      m_ros == usb_cam::constants::MONO8 ||
-      m_ros == usb_cam::constants::MONO16;
+      m_ros == gphoto2_cam::constants::MONO8 ||
+      m_ros == gphoto2_cam::constants::MONO16;
   }
 
   /// @brief Returns if the final output format is bayer
@@ -154,14 +154,14 @@ public:
   inline bool is_bayer()
   {
     return
-      m_ros == usb_cam::constants::BAYER_RGGB8 ||
-      m_ros == usb_cam::constants::BAYER_BGGR8 ||
-      m_ros == usb_cam::constants::BAYER_GBRG8 ||
-      m_ros == usb_cam::constants::BAYER_GRBG8 ||
-      m_ros == usb_cam::constants::BAYER_RGGB16 ||
-      m_ros == usb_cam::constants::BAYER_BGGR16 ||
-      m_ros == usb_cam::constants::BAYER_GBRG16 ||
-      m_ros == usb_cam::constants::BAYER_GRBG16;
+      m_ros == gphoto2_cam::constants::BAYER_RGGB8 ||
+      m_ros == gphoto2_cam::constants::BAYER_BGGR8 ||
+      m_ros == gphoto2_cam::constants::BAYER_GBRG8 ||
+      m_ros == gphoto2_cam::constants::BAYER_GRBG8 ||
+      m_ros == gphoto2_cam::constants::BAYER_RGGB16 ||
+      m_ros == gphoto2_cam::constants::BAYER_BGGR16 ||
+      m_ros == gphoto2_cam::constants::BAYER_GBRG16 ||
+      m_ros == gphoto2_cam::constants::BAYER_GRBG16;
   }
 
   /// @brief Returns if the final output format has an alpha value
@@ -171,10 +171,10 @@ public:
   inline bool has_alpha()
   {
     return
-      m_ros == usb_cam::constants::RGBA8 ||
-      m_ros == usb_cam::constants::BGRA8 ||
-      m_ros == usb_cam::constants::RGBA16 ||
-      m_ros == usb_cam::constants::BGRA16;
+      m_ros == gphoto2_cam::constants::RGBA8 ||
+      m_ros == gphoto2_cam::constants::BGRA8 ||
+      m_ros == gphoto2_cam::constants::RGBA16 ||
+      m_ros == gphoto2_cam::constants::BGRA16;
   }
 
 protected:
@@ -186,7 +186,7 @@ protected:
   // TODO(flynneva): make this a vector of supported conversions for the specified V4L2 format
   /// @brief This should match ROS encoding string
   /// See `sensor_msgs/image_encodings.hpp` for corresponding possible values. Copy of
-  /// those values are stored in `usb_cam/constants.hpp`
+  /// those values are stored in `gphoto2_cam/constants.hpp`
   std::string m_ros;
   /// @brief Number of channels (aka bytes per pixel) of output (ROS format above)
   uint8_t m_channels;
@@ -205,7 +205,7 @@ public:
   : pixel_format_base(
       "yuyv",
       V4L2_PIX_FMT_YUYV,
-      usb_cam::constants::YUV422_YUY2,
+      gphoto2_cam::constants::YUV422_YUY2,
       2,
       8,
       false)
@@ -213,6 +213,6 @@ public:
 };
 
 }  // namespace formats
-}  // namespace usb_cam
+}  // namespace gphoto2_cam
 
 #endif  // USB_CAM__FORMATS__PIXEL_FORMAT_BASE_HPP_

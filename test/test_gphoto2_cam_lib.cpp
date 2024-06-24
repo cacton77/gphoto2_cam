@@ -26,38 +26,34 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+#include <gtest/gtest.h>
 
-#ifndef USB_CAM__FORMATS__RGB_HPP_
-#define USB_CAM__FORMATS__RGB_HPP_
+#include <chrono>
+#include <iostream>
+#include <thread>
 
-#include "linux/videodev2.h"
+#include "gphoto2_cam/gphoto2_cam.hpp"
+#include "gphoto2_cam/utils.hpp"
 
-#include "usb_cam/formats/pixel_format_base.hpp"
-#include "usb_cam/formats/utils.hpp"
+TEST(test_gphoto2_cam_lib, test_gphoto2_cam_class) {
+  gphoto2_cam::gPhoto2Cam test_gphoto2_cam;
 
+  auto supported_fmts = test_gphoto2_cam.get_supported_formats();
 
-namespace usb_cam
-{
-namespace formats
-{
-
-class RGB8 : public pixel_format_base
-{
-public:
-  explicit RGB8(const format_arguments_t & args = format_arguments_t())
-  : pixel_format_base(
-      "rgb8",
-      V4L2_PIX_FMT_RGB332,
-      usb_cam::constants::RGB8,
-      3,
-      8,
-      false)
-  {
-    (void)args;
+  // TODO(flynneva): iterate over availble formats with test_gphoto2_cam obj
+  for (auto fmt : supported_fmts) {
+    std::cerr << "format: " << fmt.format.type << std::endl;
   }
-};
 
-}  // namespace formats
-}  // namespace usb_cam
-
-#endif  // USB_CAM__FORMATS__RGB_HPP_
+  // TODO(flynneva): rework these tests in another MR
+  {
+    // test_gphoto2_cam.configure(
+    //   "/dev/video0",
+    //   gphoto2_cam::utils::IO_METHOD_MMAP,
+    //   "yuyv2rgb", 640, 480, 30);
+    // test_gphoto2_cam.start();
+    // TODO(flynneva): uncomment once /dev/video0 can be simulated in CI
+    // EXPECT_TRUE(test_gphoto2_cam.is_capturing());
+    // test_gphoto2_cam.shutdown();
+  }
+}

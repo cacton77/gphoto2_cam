@@ -1,9 +1,9 @@
-# usb_cam [![ROS 2 CI](https://github.com/ros-drivers/usb_cam/actions/workflows/build_test.yml/badge.svg)](https://github.com/ros-drivers/usb_cam/actions/workflows/build_test.yml)
+# gphoto2_cam_cam [![ROS 2 CI](https://github.com/ros-drivgphoto2_camoto2_cam/actions/workflows/build_test.yml/badge.svg)](https://github.com/ros-gphoto2_cam/gphoto2_cam/actions/workflows/build_test.yml)
 
 ## A ROS 2 Driver for V4L USB Cameras
 This package is based off of V4L devices specifically instead of just UVC.
 
-For ros1 documentation, see [the ROS wiki](http://ros.org/wiki/usb_cam).
+For ros1 documentation, see [the ROS wiki](http://ros.org/wiki/gphoto2_cam_cam).
 
 ## Supported ROS 2 Distros and Platforms
 
@@ -32,7 +32,7 @@ Clone/Download the source code into your workspace:
 
 ```shell
 cd /path/to/colcon_ws/src
-git clone https://github.com/ros-drivers/usb_cam.git
+git clone https://github.com/ros-drivers/gphoto2_cam_cam.git
 ```
 
 Or click on the green "Download zip" button on the repo's github webpage.
@@ -44,7 +44,7 @@ cd /path/to/colcon_ws
 rosdep install --from-paths src --ignore-src -y
 ```
 
-From there you should have all the necessary dependencies installed to compile the `usb_cam` package:
+From there you should have all the necessary dependencies installed to compile the `gphoto2_cam_cam` package:
 
 ```shell
 cd /path/to/colcon_ws
@@ -58,11 +58,11 @@ Once sourced, you should be able to run the package in one of three ways, shown 
 
 ## Running
 
-The `usb_cam_node` can be ran with default settings, by setting specific parameters either via the command line or by loading in a parameters file.
+The `gphoto2_cam_cam_node` can be ran with default settings, by setting specific parameters either via the command line or by loading in a parameters file.
 
-We provide a "default" params file in the `usb_cam/config/params.yaml` directory to get you started. Feel free to modify this file as you wish.
+We provide a "default" params file in the `gphoto2_cam_cam/config/params.yaml` directory to get you started. Feel free to modify this file as you wish.
 
-Also provided is a launch file that should launch the `usb_cam_node_exe` executable along with an additional node that displays an image topic.
+Also provided is a launch file that should launch the `gphoto2_cam_cam_node_exe` executable along with an additional node that displays an image topic.
 
 The commands to run each of these different ways of starting the node are shown below:
 
@@ -70,29 +70,29 @@ The commands to run each of these different ways of starting the node are shown 
 
 ```shell
 # run the executable with default settings (without params file)
-ros2 run usb_cam usb_cam_node_exe
+ros2 run gphoto2_cam_gphoto2_camoto2_cam_node_exe
 
 # run the executable while passing in parameters via a yaml file
-ros2 run usb_cam usb_cam_node_exe --ros-args --params-file /path/to/colcon_ws/src/usb_cam/config/params.yaml
+ros2 run gphoto2_cam_gphoto2_camoto2_cam_node_exe --ros-args --params-file /path/to/colcongphoto2_cam/gphoto2_cam/config/params.yaml
 
-# launch the usb_cam executable that loads parameters from the same `usb_cam/config/params.yaml` file as above
+# launch the gphoto2_cam_cam executable that loads parameters from the sagphoto2_camoto2_cam/config/params.yaml` file as above
 # along with an additional image viewer node
-ros2 launch usb_cam camera.launch.py
+ros2 launch gphoto2_cam_cam camera.launch.py
 ```
-## Launching Multiple usb_cam's
+## Launching Multiple gphoto2_cam_cam's
 
 To launch multiple nodes at once, simply remap the namespace of each one:
 
 ```shell
-ros2 run usb_cam usb_cam_node_exe --remap __ns:=/usb_cam_0 --params-file /path/to/usb_cam/config/params_0.yaml
-ros2 run usb_cam usb_cam_node_exe --remap __ns:=/usb_cam_1 --params-file /path/to/usb_cam/config/params_1.yaml
+ros2 run gphoto2_cam_gphoto2_camoto2_cam_node_exe --remapgphoto2_cam/gphoto2_cam_0 --params-figphoto2_camh/to/gphoto2_cam/config/params_0.yaml
+ros2 run gphoto2_cam_gphoto2_camoto2_cam_node_exe --remapgphoto2_cam/gphoto2_cam_1 --params-figphoto2_camh/to/gphoto2_cam/config/params_1.yaml
 ```
 
 ## Supported formats
 
 ### Device supported formats
 
-To see a connected devices supported formats, run the `usb_cam_node` and observe the console output.
+To see a connected devices supported formats, run the `gphoto2_cam_cam_node` and observe the console output.
 
 An example output is:
 
@@ -114,7 +114,7 @@ This devices supproted formats:
 
 ### Driver supported formats
 
-The driver has its own supported formats. See [the source code](include/usb_cam/formats/)
+The driver has its own supported formats. See [the source code](include/gphoto2_cam_cam/formats/)
 for details.
 
 After observing [the devices supported formats](#device-supported-formats), specify which
@@ -123,7 +123,7 @@ format to use via [the parameters file](config/params.yaml) with the `pixel_form
 To see a list of all currently supported driver formats, run the following command:
 
 ```shell
-ros2 run usb_cam usb_cam_node_exe --ros-args -p pixel_format:="test"
+ros2 run gphoto2_cam_gphoto2_camoto2_cam_node_exe --ros-args -p pixel_format:="test"
 ```
 
 Note: "test" here could be replaced with any non-supported pixel format string. The driver
@@ -146,7 +146,7 @@ of each](https://lwn.net/Articles/240667/)
 
 Big thanks to [the `ros2_v4l2_camera` package](https://gitlab.com/boldhearts/ros2_v4l2_camera#usage-1) and their documentation on this topic.
 
-The `usb_cam` should support compression by default since it uses `image_transport` to publish its images as long as the `image_transport_plugins` package is installed on your system. With the plugins installed the `usb_cam` package should publish a `compressed` topic automatically.
+The `gphoto2_cam_cam` should support compression by default since it uses `image_transport` to publish its images as long as the `image_transport_plugins` package is installed on your system. With the plugins installed tgphoto2_camoto2_cam` package should publish a `compressed` topic automatically.
 
 Unfortunately `rviz2` and `show_image.py` do not support visualizing the compressed images just yet so you will need to republish the compressed image downstream to uncompress it:
 
@@ -162,13 +162,13 @@ is a flag to add these compile commands to the targets.
 To enable them, pass in the `SANITIZE=1` flag:
 
 ```shell
-colcon build --packages-select usb_cam --cmake-args -DSANITIZE=1
+colcon build --packages-select gphoto2_cam_cam --cmake-args -DSANITIZE=1
 ```
 
 Once built, run the nodes executable directly and pass any `ASAN_OPTIONS` that are needed:
 
 ```shell
-ASAN_OPTIONS=new_delete_type_mismatch=0 ./install/usb_cam/lib/usb_cam/usb_cam_node_exe 
+ASAN_OPTIONS=new_delete_type_mismatch=0 ./install/gphoto2_cam_cam/gphoto2_camogphoto2_cam/gphoto2_cam_node_exe 
 ```
 
 After shutting down the executable with `Ctrl+C`, the sanitizer will report any memory leaks.
@@ -178,11 +178,11 @@ down performance.
 
 ## Documentation
 
-[Doxygen](http://docs.ros.org/indigo/api/usb_cam/html/) files can be found on the ROS wiki.
+[Doxygen](http://docs.ros.org/indigo/api/gphoto2_cam_cam/html/) files can be found on the ROS wiki.
 
 ### License
 
-usb_cam is released with a BSD license. For full terms and conditions, see the [LICENSE](LICENSE) file.
+gphoto2_cam_cam is released with a BSD license. For full terms and conditions, see the [LICENSE](LICENSE) file.
 
 ### Authors
 

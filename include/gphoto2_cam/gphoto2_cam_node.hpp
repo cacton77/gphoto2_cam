@@ -28,8 +28,8 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 
-#ifndef USB_CAM__USB_CAM_NODE_HPP_
-#define USB_CAM__USB_CAM_NODE_HPP_
+#ifndef GPHOTO2_CAM__GPHOTO2_CAM_NODE_HPP_
+#define GPHOTO2_CAM__GPHOTO2_CAM_NODE_HPP_
 
 #include <memory>
 #include <string>
@@ -42,7 +42,9 @@
 #include "sensor_msgs/msg/compressed_image.hpp"
 #include "std_srvs/srv/set_bool.hpp"
 
-#include "usb_cam/usb_cam.hpp"
+
+#include <gphoto2/gphoto2-camera.h>
+#include "gphoto2_cam/gphoto2_cam.hpp"
 
 
 std::ostream & operator<<(std::ostream & ostr, const rclcpp::Time & tm)
@@ -52,19 +54,19 @@ std::ostream & operator<<(std::ostream & ostr, const rclcpp::Time & tm)
 }
 
 
-namespace usb_cam
+namespace gphoto2_cam
 {
 
-class UsbCamNode : public rclcpp::Node
+class gPhoto2CamNode : public rclcpp::Node
 {
 public:
-  explicit UsbCamNode(const rclcpp::NodeOptions & node_options);
-  ~UsbCamNode();
+  explicit gPhoto2CamNode(const rclcpp::NodeOptions & node_options);
+  ~gPhoto2CamNode();
 
   void init();
   void get_params();
   void assign_params(const std::vector<rclcpp::Parameter> & parameters);
-  void set_v4l2_params();
+  void set_gphoto2_params();
   void update();
   bool take_and_send_image();
   bool take_and_send_image_mjpeg();
@@ -77,7 +79,7 @@ public:
     const std::shared_ptr<std_srvs::srv::SetBool::Request> request,
     std::shared_ptr<std_srvs::srv::SetBool::Response> response);
 
-  UsbCam * m_camera;
+  gPhoto2Cam * m_camera;
 
   sensor_msgs::msg::Image::UniquePtr m_image_msg;
   sensor_msgs::msg::CompressedImage::UniquePtr m_compressed_img_msg;
@@ -95,5 +97,5 @@ public:
   rclcpp::Service<std_srvs::srv::SetBool>::SharedPtr m_service_capture;
   rclcpp::node_interfaces::OnSetParametersCallbackHandle::SharedPtr m_parameters_callback_handle;
 };
-}  // namespace usb_cam
-#endif  // USB_CAM__USB_CAM_NODE_HPP_
+}  // namespace gphoto2_cam
+#endif  // GPHOTO2_CAM__GPHOTO2_CAM_NODE_HPP_

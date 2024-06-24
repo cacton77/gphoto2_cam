@@ -49,13 +49,13 @@ extern "C" {
 #include "libswscale/swscale.h"
 }
 
-#include "usb_cam/usb_cam.hpp"
-#include "usb_cam/formats/pixel_format_base.hpp"
-#include "usb_cam/formats/utils.hpp"
-#include "usb_cam/formats/av_pixel_format_helper.hpp"
+#include "gphoto2_cam/gphoto2_cam.hpp"
+#include "gphoto2_cam/formats/pixel_format_base.hpp"
+#include "gphoto2_cam/formats/utils.hpp"
+#include "gphoto2_cam/formats/av_pixel_format_helper.hpp"
 
 
-namespace usb_cam
+namespace gphoto2_cam
 {
 namespace formats
 {
@@ -81,7 +81,7 @@ public:
   : pixel_format_base(
       "mjpeg2rgb",
       V4L2_PIX_FMT_MJPEG,
-      usb_cam::constants::RGB8,
+      gphoto2_cam::constants::RGB8,
       3,
       8,
       true),
@@ -251,6 +251,6 @@ private:
 };
 
 }  // namespace formats
-}  // namespace usb_cam
+}  // namespace gphoto2_cam
 
 #endif  // USB_CAM__FORMATS__MJPEG_HPP_

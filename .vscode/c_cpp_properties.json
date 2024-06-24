@@ -1,0 +1,29 @@
+{
+  "configurations": [
+    {
+      "browse": {
+        "databaseFilename": "${default}",
+        "limitSymbolsToIncludedHeaders": false
+      },
+      "includePath": [
+        "/home/col/Inspection/dev_ws/install/inspection_perception/include/**",
+        "/home/col/Inspection/dev_ws/install/gphoto2_cam/include/**",
+        "/home/col/Inspection/base_ws/install/inspection_interfaces/include/**",
+        "/home/col/Inspection/base_ws/install/gphoto2_srvs/include/**",
+        "/opt/ros/humble/include/**",
+        "/home/col/Inspection/dev_ws/src/gphoto2_cam/include/**",
+        "/home/col/Inspection/dev_ws/src/inspection_cell_description/include/**",
+        "/home/col/Inspection/dev_ws/src/inspection_eoat_description/include/**",
+        "/home/col/Inspection/dev_ws/src/inspection_perception/include/**",
+        "/home/col/Inspection/dev_ws/src/turntable_description/include/**",
+        "/usr/include/**"
+      ],
+      "name": "ROS",
+      "intelliSenseMode": "gcc-x64",
+      "compilerPath": "/usr/bin/gcc",
+      "cStandard": "gnu11",
+      "cppStandard": "c++14"
+    }
+  ],
+  "version": 4
+}

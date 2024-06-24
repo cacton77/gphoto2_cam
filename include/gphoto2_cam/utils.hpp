@@ -49,12 +49,12 @@ extern "C" {
 
 #include "linux/videodev2.h"
 
-#include "usb_cam/constants.hpp"
+#include "gphoto2_cam/constants.hpp"
 
 namespace fs = std::filesystem;
 
 
-namespace usb_cam
+namespace gphoto2_cam
 {
 namespace utils
 {
@@ -196,6 +196,6 @@ inline std::map<std::string, v4l2_capability> available_devices()
 }
 
 }  // namespace utils
-}  // namespace usb_cam
+}  // namespace gphoto2_cam
 
 #endif  // USB_CAM__UTILS_HPP_

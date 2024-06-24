@@ -59,13 +59,13 @@ CAMERAS.append(
 def generate_launch_description():
     ld = LaunchDescription()
 
-    parser = argparse.ArgumentParser(description='usb_cam demo')
+    parser = argparse.ArgumentParser(description='gphoto2_cam demo')
     parser.add_argument('-n', '--node-name', dest='node_name', type=str,
-                        help='name for device', default='usb_cam')
+                        help='name for device', default='gphoto2_cam')
 
     camera_nodes = [
         Node(
-            package='usb_cam', executable='usb_cam_node_exe', output='screen',
+            package='gphoto2_cam', executable='gphoto2_cam_node_exe', output='screen',
             name=camera.name,
             namespace=camera.namespace,
             parameters=[camera.param_path],

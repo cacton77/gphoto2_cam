@@ -1,5 +1,5 @@
 {
-  "baseUrl": "/usb_cam/api-reference/",
+  "baseUrl": "/gphoto2_cam/api-reference/",
   "copyImages": true,
   "fileExt": "md",
   "filesFilter": [],

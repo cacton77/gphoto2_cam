@@ -1,39 +1,39 @@
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Changelog for package usb_cam
+Changelog for package gphoto2_cam
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 0.8.1 (2024-05-01)
 ------------------
-* Merge pull request `#330 <https://github.com/ros-drivers/usb_cam/issues/330>`_ from ros-drivers/fix-rolling-builds
+* Merge pull request `#330 <https://github.com/ros-drivers/gphoto2_cam/issues/330>`_ from ros-drivers/fix-rolling-builds
   Update comment in CI from Jammy to Noble
 * Fix linter error in uyvy file
   - Update comment in CI from Jammy to Noble
-* Merge pull request `#324 <https://github.com/ros-drivers/usb_cam/issues/324>`_ from clalancette/clalancette/const-avcodec
+* Merge pull request `#324 <https://github.com/ros-drivers/gphoto2_cam/issues/324>`_ from clalancette/clalancette/const-avcodec
   Switch to a const AVCodec *.
 * Switch to a const AVCodec *.
   This is because newer versions of avcodec return a const AVCodec *.
-* Merge pull request `#313 <https://github.com/ros-drivers/usb_cam/issues/313>`_ from ros-drivers/v4l2-devices-might-not-be-named-video
+* Merge pull request `#313 <https://github.com/ros-drivers/gphoto2_cam/issues/313>`_ from ros-drivers/v4l2-devices-might-not-be-named-video
   V4l2 devices might not be named video
 * Use /sys/class/video4linux/ to get list of v4l2 devices
-* Merge pull request `#311 <https://github.com/ros-drivers/usb_cam/issues/311>`_ from firesurfer/ros2
+* Merge pull request `#311 <https://github.com/ros-drivers/gphoto2_cam/issues/311>`_ from firesurfer/ros2
   Resolve Symlinks
-* Update usb_cam_node.cpp
+* Update gphoto2_cam_node.cpp
   Fix formatting
 * try to fix formatting issue
 * resolve symlinks
-* Merge pull request `#305 <https://github.com/ros-drivers/usb_cam/issues/305>`_ from ros-drivers/fix-docs-deployment
+* Merge pull request `#305 <https://github.com/ros-drivers/gphoto2_cam/issues/305>`_ from ros-drivers/fix-docs-deployment
 * Remove unnecessary steps from docs CI
-* Merge pull request `#304 <https://github.com/ros-drivers/usb_cam/issues/304>`_ from ros-drivers/fix-docs-ci
+* Merge pull request `#304 <https://github.com/ros-drivers/gphoto2_cam/issues/304>`_ from ros-drivers/fix-docs-ci
   Fix docs ci
 * Trigger docs CI on every push to ros2 branch
-* Merge pull request `#303 <https://github.com/ros-drivers/usb_cam/issues/303>`_ from ros-drivers/add-mkdocs-documentation
+* Merge pull request `#303 <https://github.com/ros-drivers/gphoto2_cam/issues/303>`_ from ros-drivers/add-mkdocs-documentation
 * Standup basic mkdocs documentation site
 * Contributors: Chris Lalancette, Evan Flynn, Lennart Nachtigall
 
 0.8.0 (2023-12-04)
 ------------------
 * Bump for release 0.8.0, update docs
-* Merge pull request `#300 <https://github.com/ros-drivers/usb_cam/issues/300>`_ from ros-drivers/263-check-if-specified-pixel-format-is-supported
+* Merge pull request `#300 <https://github.com/ros-drivers/gphoto2_cam/issues/300>`_ from ros-drivers/263-check-if-specified-pixel-format-is-supported
   263 check if specified pixel format is supported
 * Check if specified pixel format is supported by driver and by device
   - Also fix typo in params_2 yaml file
@@ -41,21 +41,21 @@ Changelog for package usb_cam
 * Add v4l2_str method to pixel_format_base class
 * Add common arguments strut to pixel format classes
   - Use common arguments struct in all format classes
-* Merge pull request `#292 <https://github.com/ros-drivers/usb_cam/issues/292>`_ from ros-drivers/288-fix-uyvy2rgb-size
+* Merge pull request `#292 <https://github.com/ros-drivers/gphoto2_cam/issues/292>`_ from ros-drivers/288-fix-uyvy2rgb-size
   288 fix uyvy2rgb size
-* Merge pull request `#270 <https://github.com/ros-drivers/usb_cam/issues/270>`_ from boitumeloruf/raw-mjpeg-stream
+* Merge pull request `#270 <https://github.com/ros-drivers/gphoto2_cam/issues/270>`_ from boitumeloruf/raw-mjpeg-stream
   Publish raw mjpeg stream directly via compressed image topic
 * Introduced funtions get\_..._from_av_format, fixed code style errors
 * Merge branch 'ros2' into raw-mjpeg-stream
 * fixed minor build issues
 * Merge branch 'ros2' into raw-mjpeg-stream
-* Merge branch 'ros2' of https://github.com/boitumeloruf/usb_cam into ros2
-* Merge pull request `#295 <https://github.com/ros-drivers/usb_cam/issues/295>`_ from ros-drivers/run-ci-on-ros2-branch-too
+* Merge branch 'ros2' of https://github.com/boitumeloruf/gphoto2_cam into ros2
+* Merge pull request `#295 <https://github.com/ros-drivers/gphoto2_cam/issues/295>`_ from ros-drivers/run-ci-on-ros2-branch-too
   Run CI on ros2 branch pushes too
 * Bump checkout action to latest
 * Ensure ROS_VERSION is set for ROS build farms
 * Run CI on ros2 branch pushes too
-* Merge pull request `#294 <https://github.com/ros-drivers/usb_cam/issues/294>`_ from ros-drivers/291-auto-generate-ci-matrix
+* Merge pull request `#294 <https://github.com/ros-drivers/gphoto2_cam/issues/294>`_ from ros-drivers/291-auto-generate-ci-matrix
   Auto generate ci matrix
 * Continue on error for ROS 1 build and test job
 * Hard-code noetic to actions matrix step until 2025
@@ -63,7 +63,7 @@ Changelog for package usb_cam
 * Switch to tagged version of the active_ros_distros script
 * Add basic ROS 1 node, update CMakelists and package.xml
 * Update CI to automatically generate distro matrix
-* Merge pull request `#293 <https://github.com/ros-drivers/usb_cam/issues/293>`_ from ros-drivers/add-mjpeg-device-format-param
+* Merge pull request `#293 <https://github.com/ros-drivers/gphoto2_cam/issues/293>`_ from ros-drivers/add-mjpeg-device-format-param
   Add mjpeg device format param
 * fixed cppcheck and uncrustify errors
 * Refactored use of av_device_format
@@ -71,12 +71,12 @@ Changelog for package usb_cam
 * Added av_device_format parameter
 * Fix bytes per line logic for base image class
 * Fix number of channels for uyvy2rgb format
-* Merge pull request `#286 <https://github.com/ros-drivers/usb_cam/issues/286>`_ from ros-drivers/285-handle-unavailable-device
+* Merge pull request `#286 <https://github.com/ros-drivers/gphoto2_cam/issues/286>`_ from ros-drivers/285-handle-unavailable-device
   285 handle unavailable device, list available v4l2 devices
 * Fix manual triggering of CI pipelines
 * Check if given v4l2 device exists before opening it
 * fixed cppcheck and uncrustify errors
-* Merge pull request `#282 <https://github.com/ros-drivers/usb_cam/issues/282>`_ from flynneva/ros2-prepare-release
+* Merge pull request `#282 <https://github.com/ros-drivers/gphoto2_cam/issues/282>`_ from flynneva/ros2-prepare-release
   Bump to 0.7.0, generate CHANGELOG
 * Merge branch 'ros2' into raw-mjpeg-stream
 * Fix seg fault when unref av_packet using av_codec < 58.133.100
@@ -93,11 +93,11 @@ Changelog for package usb_cam
 * Fix mjpeg invalid ptr and mjpeg memory leak
 * Allocate unique avpacket for each frame
 * Fix some minor memorly leaks for mjpeg
-  Relates to `#262 <https://github.com/ros-drivers/usb_cam/issues/262>`_
+  Relates to `#262 <https://github.com/ros-drivers/gphoto2_cam/issues/262>`_
 * Update docs to new launch file name
-  Closes `#277 <https://github.com/ros-drivers/usb_cam/issues/277>`_
+  Closes `#277 <https://github.com/ros-drivers/gphoto2_cam/issues/277>`_
 * Only unref packet in destructor
-  Closes `#274 <https://github.com/ros-drivers/usb_cam/issues/274>`_ `#275 <https://github.com/ros-drivers/usb_cam/issues/275>`_
+  Closes `#274 <https://github.com/ros-drivers/gphoto2_cam/issues/274>`_ `#275 <https://github.com/ros-drivers/gphoto2_cam/issues/275>`_
 * Enable manaul trigger of ROS 2 CI, add Iron, deprecate Foxy
 * Add Iron to CI, remove Foxy
 * Enable manaul trigger of ROS 2 CI
@@ -144,21 +144,21 @@ Changelog for package usb_cam
 
 0.5.0 (2023-01-14)
 ------------------
-* Merge pull request `#212 <https://github.com/flynneva/usb_cam/issues/212>`_ from flynneva/203-refactor-usb-cam-library-with-no-ros-deps
+* Merge pull request `#212 <https://github.com/flynneva/gphoto2_cam/issues/212>`_ from flynneva/203-refactor-usb-cam-library-with-no-ros-deps
   Improve ros2 rewrite some more
-* Ensure usb_cam lib and node are installed
-* Add missing include to test_usb_cam_lib
+* Ensure gphoto2_cam lib and node are installed
+* Add missing include to test_gphoto2_cam_lib
 * Rename format enums to make code easier to read
 * Make supported formats a member variable of the UsbCam class
 * Adjust get_image method to return image to reduce required args
 * Use unused arguments in MJPEG2RGB conversion function
 * Treat all compiler warnings as errors to be more strict
-* Improve logging errors for usb_cam lib
+* Improve logging errors for gphoto2_cam lib
 * Fix opencv include path
-* Merge pull request `#210 <https://github.com/flynneva/usb_cam/issues/210>`_ from revanthsenthil/ros2
+* Merge pull request `#210 <https://github.com/flynneva/gphoto2_cam/issues/210>`_ from revanthsenthil/ros2
   ROS 2 installation instruction typo fix
 * Merge branch 'ros-drivers:ros2' into ros2
-* Merge pull request `#209 <https://github.com/flynneva/usb_cam/issues/209>`_ from flynneva/203-refactor-usb-cam-library-with-no-ros-deps
+* Merge pull request `#209 <https://github.com/flynneva/gphoto2_cam/issues/209>`_ from flynneva/203-refactor-usb-cam-library-with-no-ros-deps
   Refactor usb cam library with no ros deps
 * Update README.md
   resolved error with `apt-get` from `apt get`
@@ -166,44 +166,44 @@ Changelog for package usb_cam
 * Improve supported formats method for UsbCam object
 * Fix MJPEG2RGB conversion function
 * Enable code coverage using lcov
-* Add integration test for usb_cam lib
-* Clean up usb_cam lib, remove rclcpp dep
+* Add integration test for gphoto2_cam lib
+* Clean up gphoto2_cam lib, remove rclcpp dep
 * Bump default framerate to 30hz
 * Improve CLIPVALUE method, add unit test for it
 * Fix humble CI name
-* Add some basic unit tests to usb_cam
-* Remove ROS dep from usb_cam by rewriting timestamping of frames
-* Restructure usb_cam code into more digestible pieces
-* Merge pull request `#207 <https://github.com/flynneva/usb_cam/issues/207>`_ from flynneva/fix-compiler-warnings
+* Add some basic unit tests to gphoto2_cam
+* Remove ROS dep from gphoto2_cam by rewriting timestamping of frames
+* Restructure gphoto2_cam code into more digestible pieces
+* Merge pull request `#207 <https://github.com/flynneva/gphoto2_cam/issues/207>`_ from flynneva/fix-compiler-warnings
   Fix compiler warnings, replace deprecated code
 * Add basic linters to CMake, fix linter errors found
 * Fix compiler warnings, replace deprecated code
-* Merge pull request `#206 <https://github.com/flynneva/usb_cam/issues/206>`_ from flynneva/ros2
+* Merge pull request `#206 <https://github.com/flynneva/gphoto2_cam/issues/206>`_ from flynneva/ros2
   Add humble to CI
 * Add humble to CI
-* Merge pull request `#177 <https://github.com/flynneva/usb_cam/issues/177>`_ from benmaidel/feature/YUV420_ros2
+* Merge pull request `#177 <https://github.com/flynneva/gphoto2_cam/issues/177>`_ from benmaidel/feature/YUV420_ros2
   [ros2] add support for YUV420 (yu12) pixel format
-* Merge pull request `#193 <https://github.com/flynneva/usb_cam/issues/193>`_ from mad0x60/patch-1
+* Merge pull request `#193 <https://github.com/flynneva/gphoto2_cam/issues/193>`_ from mad0x60/patch-1
 * update the deprecated uncompressed command
   The current ros2 image decompression command produces the following warning because it is deprecated:
   [WARN] [1662133933.155713605] [rcl]: Found remap rule 'in/compressed:=image_raw/compressed'. This syntax is deprecated. Use '--ros-args --remap in/compressed:=image_raw/compressed' instead.
   [WARN] [1662133933.155877454] [rcl]: Found remap rule 'out:=image_raw/uncompressed'. This syntax is deprecated. Use '--ros-args --remap out:=image_raw/uncompressed' instead.
   This change update to match the most recent ROS2 format
-* Merge pull request `#189 <https://github.com/flynneva/usb_cam/issues/189>`_ from flynneva/ros2
+* Merge pull request `#189 <https://github.com/flynneva/gphoto2_cam/issues/189>`_ from flynneva/ros2
   Suppress libav deprecated pixel format used warnings (backport from #…
-* Suppress libav deprecated pixel format used warnings (backport from `#115 <https://github.com/flynneva/usb_cam/issues/115>`_)
+* Suppress libav deprecated pixel format used warnings (backport from `#115 <https://github.com/flynneva/gphoto2_cam/issues/115>`_)
 * Merge branch 'ros2' into feature/YUV420_ros2
-* Merge pull request `#188 <https://github.com/flynneva/usb_cam/issues/188>`_ from krsche/feat/ros2-add-h264-support
+* Merge pull request `#188 <https://github.com/flynneva/gphoto2_cam/issues/188>`_ from krsche/feat/ros2-add-h264-support
 * feat: add color_format param to support yuv422p
   required for using cams like the Logitech C920 with the h264 pixel_format
 * feat: add h264 support
-* Merge pull request `#185 <https://github.com/flynneva/usb_cam/issues/185>`_ from progtologist/ros2
-  Enabled dynamic reconfiguration of usb_cam_node
+* Merge pull request `#185 <https://github.com/flynneva/gphoto2_cam/issues/185>`_ from progtologist/ros2
+  Enabled dynamic reconfiguration of gphoto2_cam_node
 * Added debug print in callback
   Co-authored-by: Evan Flynn <6157095+flynneva@users.noreply.github.com>
-* Merge pull request `#186 <https://github.com/flynneva/usb_cam/issues/186>`_ from ros-drivers/prep-for-release
+* Merge pull request `#186 <https://github.com/flynneva/gphoto2_cam/issues/186>`_ from ros-drivers/prep-for-release
   Prep for release
-* Enabled dynamic reconfiguration of usb_cam_node
+* Enabled dynamic reconfiguration of gphoto2_cam_node
 * Merge branch 'ros2' into feature/YUV420_ros2
 * add support for YUV420 (yu12) pixel format
 * Contributors: Andrei Vukolov, Aris Synodinos, Benjamin Maidel, Evan Flynn, Fabian Kirschner, Mohamed Moustafa, Revanth S
@@ -211,7 +211,7 @@ Changelog for package usb_cam
 0.4.2 (2022-04-25)
 ------------------
 * Minor bump for release
-* Merge pull request `#184 <https://github.com/ros-drivers/usb_cam/issues/184>`_ from clalancette/clalancette/cleanups
+* Merge pull request `#184 <https://github.com/ros-drivers/gphoto2_cam/issues/184>`_ from clalancette/clalancette/cleanups
 * Switch the rolling docker image to use jammy.
 * Add default cases to switches.
   This just quiets the compiler warnings.
@@ -221,10 +221,10 @@ Changelog for package usb_cam
 * Use uint32_t to store image sizes.
   This matches the v4l2 structures, and ensures we don't get
   sign warnings when compiling.
-* Merge pull request `#178 <https://github.com/ros-drivers/usb_cam/issues/178>`_ from benmaidel/feature/unsupported_set_format_options_ros2
+* Merge pull request `#178 <https://github.com/ros-drivers/gphoto2_cam/issues/178>`_ from benmaidel/feature/unsupported_set_format_options_ros2
   [ros2] allow cameras that do not support setting format options via VIDIOC_S_FMT
 * allow cameras that do not support setting format options via VIDIOC_S_FMT
-* Merge pull request `#170 <https://github.com/ros-drivers/usb_cam/issues/170>`_ from kenji-miyake/fix-small-warnings
+* Merge pull request `#170 <https://github.com/ros-drivers/gphoto2_cam/issues/170>`_ from kenji-miyake/fix-small-warnings
   Fix small warnings
 * Fix -Wreturn-type
 * Fix -Wparentheses
@@ -247,60 +247,60 @@ Changelog for package usb_cam
 0.4.0 (2021-07-21)
 ------------------
 * bump version for ros2 first release
-* add galactic to ci, closes `#157 <https://github.com/ros-drivers/usb_cam/issues/157>`_
+* add galactic to ci, closes `#157 <https://github.com/ros-drivers/gphoto2_cam/issues/157>`_
   update camera name
-* Merge pull request `#158 <https://github.com/ros-drivers/usb_cam/issues/158>`_ from wep21/feature/add_camera_info
+* Merge pull request `#158 <https://github.com/ros-drivers/gphoto2_cam/issues/158>`_ from wep21/feature/add_camera_info
   Feature/add camera info
 * Add sample camera info yaml
 * Add camera info
-* Merge pull request `#156 <https://github.com/ros-drivers/usb_cam/issues/156>`_ from wep21/feature/composable_node
-* Make usb_cam_node composable
-* Merge pull request `#153 <https://github.com/ros-drivers/usb_cam/issues/153>`_ from flynneva/lint/make-utils-file
+* Merge pull request `#156 <https://github.com/ros-drivers/gphoto2_cam/issues/156>`_ from wep21/feature/composable_node
+* Make gphoto2_cam_node composable
+* Merge pull request `#153 <https://github.com/ros-drivers/gphoto2_cam/issues/153>`_ from flynneva/lint/make-utils-file
 * add utils file, fix lint errors
-* Merge pull request `#151 <https://github.com/ros-drivers/usb_cam/issues/151>`_ from flynneva/fix/remove-boost
+* Merge pull request `#151 <https://github.com/ros-drivers/gphoto2_cam/issues/151>`_ from flynneva/fix/remove-boost
 * replace boost lexical_cast with snprintf
-* Merge pull request `#149 <https://github.com/ros-drivers/usb_cam/issues/149>`_ from flynneva/fix/update-readme
+* Merge pull request `#149 <https://github.com/ros-drivers/gphoto2_cam/issues/149>`_ from flynneva/fix/update-readme
   fix readme headers
 * fix readme headers
-* Merge pull request `#148 <https://github.com/ros-drivers/usb_cam/issues/148>`_ from flynneva/update-ros2-readme-and-lint
+* Merge pull request `#148 <https://github.com/ros-drivers/gphoto2_cam/issues/148>`_ from flynneva/update-ros2-readme-and-lint
   Update ros2 readme and lint
 * fix most lint errors
 * update readme, fix linter errors
-* Merge pull request `#146 <https://github.com/ros-drivers/usb_cam/issues/146>`_ from flynneva/ros2-clean-up
+* Merge pull request `#146 <https://github.com/ros-drivers/gphoto2_cam/issues/146>`_ from flynneva/ros2-clean-up
   Ros2 clean up
 * fix show_image script lag
 * run, launch and params file working
 * add service, install launch, separate header
-* Merge pull request `#139 <https://github.com/ros-drivers/usb_cam/issues/139>`_ from flynneva/cmake-cleanup
-  consolidate srcs, use ament_auto macros, closes `#138 <https://github.com/ros-drivers/usb_cam/issues/138>`_
-* consolidate srcs, use ament_auto macros, closes `#137 <https://github.com/ros-drivers/usb_cam/issues/137>`_ `#138 <https://github.com/ros-drivers/usb_cam/issues/138>`_
-* Merge pull request `#132 <https://github.com/ros-drivers/usb_cam/issues/132>`_ from flynneva/foxy
+* Merge pull request `#139 <https://github.com/ros-drivers/gphoto2_cam/issues/139>`_ from flynneva/cmake-cleanup
+  consolidate srcs, use ament_auto macros, closes `#138 <https://github.com/ros-drivers/gphoto2_cam/issues/138>`_
+* consolidate srcs, use ament_auto macros, closes `#137 <https://github.com/ros-drivers/gphoto2_cam/issues/137>`_ `#138 <https://github.com/ros-drivers/gphoto2_cam/issues/138>`_
+* Merge pull request `#132 <https://github.com/ros-drivers/gphoto2_cam/issues/132>`_ from flynneva/foxy
   updates for foxy
 * add myself to authors
 * fixing lint errors
 * add ros2 github actions
 * minor updates to foxy
 * adding launch file
-  try to fix low framerate `#103 <https://github.com/ros-drivers/usb_cam/issues/103>`_
+  try to fix low framerate `#103 <https://github.com/ros-drivers/gphoto2_cam/issues/103>`_
   add ros parameters
-  loading more parameters from parameter server `#103 <https://github.com/ros-drivers/usb_cam/issues/103>`_
+  loading more parameters from parameter server `#103 <https://github.com/ros-drivers/gphoto2_cam/issues/103>`_
   use argparse to get arguments from command line
   untested correction to args
   ignore unknown args
   set proper default device and look for more bad return values
   trying to find why framerate is limited to about 8 fps
   framerate ok for low-exposure settings
-  print list of valid formats `#105 <https://github.com/ros-drivers/usb_cam/issues/105>`_
-* use the v4l2_buffer timestamp if available. `#75 <https://github.com/ros-drivers/usb_cam/issues/75>`_
-  usb_cam.cpp is building but untested `#103 <https://github.com/ros-drivers/usb_cam/issues/103>`_
+  print list of valid formats `#105 <https://github.com/ros-drivers/gphoto2_cam/issues/105>`_
+* use the v4l2_buffer timestamp if available. `#75 <https://github.com/ros-drivers/gphoto2_cam/issues/75>`_
+  gphoto2_cam.cpp is building but untested `#103 <https://github.com/ros-drivers/gphoto2_cam/issues/103>`_
   Builds but crashes immediately after running
   data is getting published, no image shown
-  image shown, frame rate is very slow `#103 <https://github.com/ros-drivers/usb_cam/issues/103>`_
-* move the timestamping closer to when the image was acquired. `#75 <https://github.com/ros-drivers/usb_cam/issues/75>`_
-* Merge pull request `#136 <https://github.com/ros-drivers/usb_cam/issues/136>`_ from flynneva/patch-1
+  image shown, frame rate is very slow `#103 <https://github.com/ros-drivers/gphoto2_cam/issues/103>`_
+* move the timestamping closer to when the image was acquired. `#75 <https://github.com/ros-drivers/gphoto2_cam/issues/75>`_
+* Merge pull request `#136 <https://github.com/ros-drivers/gphoto2_cam/issues/136>`_ from flynneva/patch-1
   add myself as a maintainer for ros2
 * add myself as a maintainer for ros2
-* Merge pull request `#124 <https://github.com/ros-drivers/usb_cam/issues/124>`_ from k-okada/add_noetic
+* Merge pull request `#124 <https://github.com/ros-drivers/gphoto2_cam/issues/124>`_ from k-okada/add_noetic
   add noetic .travis.yml
 * add noetic .travis.yml
 * Contributors: Evan Flynn, Kei Okada, Lucas Walter, flynneva, wep21
@@ -312,22 +312,22 @@ Changelog for package usb_cam
 0.3.6 (2017-06-15)
 ------------------
 * .travis.yml: udpate to trusty
-* add AV\_ prefix to PIX_FMT\_* for X,Y (`#71 <https://github.com/ros-drivers/usb_cam/issues/71>`_)
+* add AV\_ prefix to PIX_FMT\_* for X,Y (`#71 <https://github.com/ros-drivers/gphoto2_cam/issues/71>`_)
 * Contributors: Kei Okada
 
 0.3.5 (2017-06-14)
 ------------------
-* add ROS Orphaned Package Maintainers to maintainer tag (`#69 <https://github.com/ros-drivers/usb_cam/issues/69>`_)
-* support for Kinetic / Ubuntu 16.04 (`#58 <https://github.com/ros-drivers/usb_cam/issues/58>`_)
+* add ROS Orphaned Package Maintainers to maintainer tag (`#69 <https://github.com/ros-drivers/gphoto2_cam/issues/69>`_)
+* support for Kinetic / Ubuntu 16.04 (`#58 <https://github.com/ros-drivers/gphoto2_cam/issues/58>`_)
   * replace use of deprecated functions in newer ffmpeg/libav versions
     ffmpeg/libav 55.x (used in ROS Kinetic) deprecated the avcodec_alloc_frame.
-* Add grey scale pixel format. (`#45 <https://github.com/ros-drivers/usb_cam/issues/45>`_)
-* add start/stop capture services (`#44 <https://github.com/ros-drivers/usb_cam/issues/44>`_ )
+* Add grey scale pixel format. (`#45 <https://github.com/ros-drivers/gphoto2_cam/issues/45>`_)
+* add start/stop capture services (`#44 <https://github.com/ros-drivers/gphoto2_cam/issues/44>`_ )
   * better management of start/stop
   * up package.xml
   * add capture service
 
-* fix bug for byte count in a pixel (3 bytes not 24 bytes) (`#40 <https://github.com/ros-drivers/usb_cam/issues/40>`_ )
+* fix bug for byte count in a pixel (3 bytes not 24 bytes) (`#40 <https://github.com/ros-drivers/gphoto2_cam/issues/40>`_ )
 * Contributors: Daniel Seifert, Eric Zavesky, Kei Okada, Ludovico Russo, Russell Toris, honeytrap15
 
 0.3.4 (2015-08-18)
@@ -362,9 +362,9 @@ Changelog for package usb_cam
 0.3.0 (2015-01-26)
 ------------------
 * Merge pull request #30 from mitchellwills/develop
-  Removed global state from usb_cam by encapsulating it inside an object
+  Removed global state from gphoto2_cam by encapsulating it inside an object
 * Made device name a std::string instead of const char*
-* Added usb_cam namespace
+* Added gphoto2_cam namespace
 * Added underscore sufix to class fields
 * Removed camera_ prefix from methods
 * Moved methods to parse pixel_format and io_method from string to UsbCam
@@ -372,8 +372,8 @@ Changelog for package usb_cam
 * Cleaned up parameter assignment
 * Made set_v4l_parameters a non-static function
 * Moved set_v4l_parameters to UsbCam object
-* Removed global state from usb_cam by encapsulating it inside an object
-  function and structions in usb_cam.h became public and everything else is private
+* Removed global state from gphoto2_cam by encapsulating it inside an object
+  function and structions in gphoto2_cam.h became public and everything else is private
 * Merge pull request #28 from mitchellwills/develop
   Fix installation of header files
 * Fix installation of header files
@@ -399,9 +399,9 @@ Changelog for package usb_cam
   do not modify parameters unless explicitly set
 * do not modify parameters unless explicitly set
   The contrast, saturation, brightness, sharpness and focus parameters
-  were recently added to usb_cam. This caused a regression
+  were recently added to gphoto2_cam. This caused a regression
   (sigproc/robotic_surgery#17) whereby the default settings for a webcam
-  are overridden in all cases by the hard-coded defaults in usb_cam.
+  are overridden in all cases by the hard-coded defaults in gphoto2_cam.
   In the absence of a know good set of "default" values, leave the
   parameters unset unless the user has explicitly set them in the launch
   file.
@@ -478,7 +478,7 @@ Changelog for package usb_cam
 ------------------
 * auto format
 * cleanup of readme and such
-* Merge branch 'hydro-devel' of github.com:bosch-ros-pkg/usb_cam
+* Merge branch 'hydro-devel' of github.com:bosch-ros-pkg/gphoto2_cam
 * Merge pull request #11 from pronobis/hydro-devel
   Fixed a bug with av_free missing by adding a proper include.
 * Fixed a bug with av_free missing by adding a proper include on Ubuntu 14.04.
@@ -490,7 +490,7 @@ Changelog for package usb_cam
 * Update package.xml
 * Remove selftest
 * Remove selftest
-* Update usb_cam_node.cpp
+* Update gphoto2_cam_node.cpp
 * Merge pull request #2 from jonbinney/7_17
   swap out deprecated libavcodec functions
 * swap out deprecated libavcodec functions
@@ -507,7 +507,7 @@ Changelog for package usb_cam
 
 0.1.2 (2013-05-06)
 ------------------
-* installs usb_cam_node
+* installs gphoto2_cam_node
 * Contributors: Russell Toris
 
 0.1.1 (2013-05-02)
@@ -589,13 +589,13 @@ Changelog for package usb_cam
 * Merge branch 'master' of github.com:agcooke/roshome
 * Initial commit
 * Added the modules.
-* Added usb_cam,
+* Added gphoto2_cam,
 * Updating to Groovy.
 * (catkin)Updating to Groovy.
 * Added another potential launch file for exporting video from rosbag.
 * (catkin)Added another potential launch file for exporting video from rosbag.
-* Added a launcher to ros bag the usb_cam, for later playback.
-* (catkin)Added a launcher to ros bag the usb_cam, for later playback.
+* Added a launcher to ros bag the gphoto2_cam, for later playback.
+* (catkin)Added a launcher to ros bag the gphoto2_cam, for later playback.
 * Added some files that were possibly not correct
 * (catkin)Added some files that were possibly not correct
 * Fixed bugs with the importing.
@@ -629,7 +629,7 @@ Changelog for package usb_cam
   We are going to perform experiments and this means that the extra
   data might be useful at a later stage.
 * Changed the size of the marker.
-* Updated the usb_cam config to work for home camera.
+* Updated the gphoto2_cam config to work for home camera.
 * Added callibration files and launch files.
 * Turned off history.
 * (catkin)Added some comments and renamed.

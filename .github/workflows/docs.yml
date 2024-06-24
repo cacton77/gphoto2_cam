@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 env:
-  WORKSPACE_PATH: ros_ws/src/usb_cam
+  WORKSPACE_PATH: ros_ws/src/gphoto2_cam
   DOXYGEN_ARTIFACT: doxygen_xml
   DOXYBOOK_ARTIFACT: api_reference
   DOXYBOOK_VERSION: v1.4.0
@@ -30,7 +30,7 @@ jobs:
           path: ${{ env.WORKSPACE_PATH }}
       - name: Generate doxygen and upload as artifact
         # TODO: figure out way to use WORKSPACE_PATH var here
-        uses: ./ros_ws/src/usb_cam/.github/actions/generate-doxygen
+        uses: ./ros_ws/src/gphoto2_cam/.github/actions/generate-doxygen
         with:
           working-directory: ${{ env.WORKSPACE_PATH }}
           doxyfile-path: 'docs/doxygen.config'
@@ -49,14 +49,14 @@ jobs:
           path: ${{ env.WORKSPACE_PATH }}
       - name: Generate API reference and upload as artifact
         # TODO: figure out way to use WORKSPACE_PATH var here
-        uses: ./ros_ws/src/usb_cam/.github/actions/generate-doxybook
+        uses: ./ros_ws/src/gphoto2_cam/.github/actions/generate-doxybook
         with:
           input-doxygen-artifact: ${{ env.DOXYGEN_ARTIFACT }}
           doxygen-artifact-extraction-path: ${{ env.WORKSPACE_PATH }}/docs/xml
           doxybook2-version: ${{ env.DOXYBOOK_VERSION }}
           doxybook2-config-path: ${{ env.WORKSPACE_PATH }}/docs/doxybook2_config.json
           output-path: ${{ env.WORKSPACE_PATH }}/docs/api-reference
-          base-url: /usb_cam/latest/api-reference/
+          base-url: /gphoto2_cam/latest/api-reference/
           artifact-path: ${{ env.WORKSPACE_PATH }}/docs/api-reference
           artifact-name: ${{ env.DOXYBOOK_ARTIFACT }}
           artifact-retention-days: 30
@@ -89,7 +89,7 @@ jobs:
       - name: Upload docs site
         uses: actions/upload-artifact@v3
         with:
-          name: usb_cam_site
+          name: gphoto2_cam_site
           path: ${{ env.WORKSPACE_PATH }}/site
   deploy_docs:
     runs-on: ubuntu-latest
@@ -125,6 +125,6 @@ jobs:
             export NEW_VERSION=${{ github.event.release.tag_name }}
           fi
           git config user.name doc-bot
-          git config user.email doc-bot@usb_cam.com
+          git config user.email doc-bot@gphoto2_cam.com
           mike deploy --push --update-aliases $NEW_VERSION latest
 

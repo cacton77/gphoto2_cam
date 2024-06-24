@@ -1,7 +1,7 @@
-site_name: usb_cam Documentation
-site_url: https://ros-drivers.github.io/usb_cam/
+site_name: gphoto2_cam Documentation
+site_url: https://ros-drivers.github.io/gphoto2_cam/
 site_author: Evan Flynn
-repo_url: https://github.com/ros-drivers/usb_cam.git
+repo_url: https://github.com/ros-drivers/gphoto2_cam.git
 theme:
   name: 'material'
   features:

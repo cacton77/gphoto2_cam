@@ -32,11 +32,11 @@
 
 #include "linux/videodev2.h"
 
-#include "usb_cam/formats/pixel_format_base.hpp"
-#include "usb_cam/formats/utils.hpp"
+#include "gphoto2_cam/formats/pixel_format_base.hpp"
+#include "gphoto2_cam/formats/utils.hpp"
 
 
-namespace usb_cam
+namespace gphoto2_cam
 {
 namespace formats
 {
@@ -48,7 +48,7 @@ public:
   : pixel_format_base(
       "yuyv",
       V4L2_PIX_FMT_YUYV,
-      usb_cam::constants::YUV422_YUY2,
+      gphoto2_cam::constants::YUV422_YUY2,
       2,
       8,
       false)
@@ -65,7 +65,7 @@ public:
   : pixel_format_base(
       "yuyv2rgb",
       V4L2_PIX_FMT_YUYV,
-      usb_cam::constants::RGB8,
+      gphoto2_cam::constants::RGB8,
       3,
       8,
       true),
@@ -110,6 +110,6 @@ private:
 };
 
 }  // namespace formats
-}  // namespace usb_cam
+}  // namespace gphoto2_cam
 
 #endif  // USB_CAM__FORMATS__YUYV_HPP_

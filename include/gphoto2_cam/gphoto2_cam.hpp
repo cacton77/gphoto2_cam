@@ -43,37 +43,38 @@ extern "C" {
 #include <string>
 #include <vector>
 
-#include "usb_cam/utils.hpp"
-#include "usb_cam/formats/pixel_format_base.hpp"
-#include "usb_cam/formats/av_pixel_format_helper.hpp"
+#include "gphoto2_cam/utils.hpp"
+#include "gphoto2_cam/formats/pixel_format_base.hpp"
+#include "gphoto2_cam/formats/av_pixel_format_helper.hpp"
 
-#include "usb_cam/formats/mjpeg.hpp"
-#include "usb_cam/formats/mono.hpp"
-#include "usb_cam/formats/rgb.hpp"
-#include "usb_cam/formats/uyvy.hpp"
-#include "usb_cam/formats/yuyv.hpp"
-#include "usb_cam/formats/m420.hpp"
+#include "gphoto2_cam/formats/mjpeg.hpp"
+#include "gphoto2_cam/formats/mono.hpp"
+#include "gphoto2_cam/formats/rgb.hpp"
+#include "gphoto2_cam/formats/uyvy.hpp"
+#include "gphoto2_cam/formats/yuyv.hpp"
+#include "gphoto2_cam/formats/m420.hpp"
 
+#include <gphoto2/gphoto2-camera.h>
 
-namespace usb_cam
+namespace gphoto2_cam
 {
 
-using usb_cam::utils::io_method_t;
-using usb_cam::formats::pixel_format_base;
+using gphoto2_cam::utils::io_method_t;
+using gphoto2_cam::formats::pixel_format_base;
 
 /// @brief Add more formats here and to driver_supported_formats below as
 /// they are added to this library
-using usb_cam::formats::RGB8;
-using usb_cam::formats::YUYV;
-using usb_cam::formats::YUYV2RGB;
-using usb_cam::formats::UYVY;
-using usb_cam::formats::UYVY2RGB;
-using usb_cam::formats::MONO8;
-using usb_cam::formats::MONO16;
-using usb_cam::formats::Y102MONO8;
-using usb_cam::formats::RAW_MJPEG;
-using usb_cam::formats::MJPEG2RGB;
-using usb_cam::formats::M4202RGB;
+using gphoto2_cam::formats::RGB8;
+using gphoto2_cam::formats::YUYV;
+using gphoto2_cam::formats::YUYV2RGB;
+using gphoto2_cam::formats::UYVY;
+using gphoto2_cam::formats::UYVY2RGB;
+using gphoto2_cam::formats::MONO8;
+using gphoto2_cam::formats::MONO16;
+using gphoto2_cam::formats::Y102MONO8;
+using gphoto2_cam::formats::RAW_MJPEG;
+using gphoto2_cam::formats::MJPEG2RGB;
+using gphoto2_cam::formats::M4202RGB;
 
 
 /// @brief list all supported formats that this driver supports
@@ -167,11 +168,14 @@ typedef struct
   }
 } image_t;
 
-class UsbCam
+class gPhoto2Cam
 {
 public:
-  UsbCam();
-  ~UsbCam();
+  gPhoto2Cam();
+  ~gPhoto2Cam();
+
+  Camera *m_camera;
+  GPContext *m_context;
 
   /// @brief Configure device, should be called before start
   void configure(parameters_t & parameters, const io_method_t & io_method);
@@ -200,8 +204,8 @@ public:
   bool set_auto_focus(int value);
 
   // Set video device parameters
-  bool set_v4l_parameter(const std::string & param, int value);
-  bool set_v4l_parameter(const std::string & param, const std::string & value);
+  bool set_gphoto2_parameter(const std::string & param, int value);
+  bool set_gphoto2_parameter(const std::string & param, const std::string & value);
 
   void stop_capturing();
   void start_capturing();
@@ -248,7 +252,7 @@ public:
     return m_image.pixel_format;
   }
 
-  inline usb_cam::utils::io_method_t get_io_method()
+  inline gphoto2_cam::utils::io_method_t get_io_method()
   {
     return m_io;
   }
@@ -258,7 +262,7 @@ public:
     return m_fd;
   }
 
-  inline std::shared_ptr<usb_cam::utils::buffer[]> get_buffers()
+  inline std::shared_ptr<gphoto2_cam::utils::buffer[]> get_buffers()
   {
     return m_buffers;
   }
@@ -352,7 +356,7 @@ public:
     return result;
   }
 
-  /// @brief Set pixel format from parameter list. Required to have logic within UsbCam object
+  /// @brief Set pixel format from parameter list. Required to have logic within gPhoto2Cam object
   /// in case pixel format class requires additional information for conversion function
   /// (e.g. number of pixels, width, height, etc.)
   /// @param parameters list of parameters from which the pixel format is to be set
@@ -394,10 +398,10 @@ private:
   void close_device();
 
   std::string m_device_name;
-  usb_cam::utils::io_method_t m_io;
+  gphoto2_cam::utils::io_method_t m_io;
   int m_fd;
   unsigned int m_number_of_buffers;
-  std::shared_ptr<usb_cam::utils::buffer[]> m_buffers;
+  std::shared_ptr<gphoto2_cam::utils::buffer[]> m_buffers;
   image_t m_image;
 
   AVFrame * m_avframe;
@@ -414,6 +418,6 @@ private:
   std::vector<capture_format_t> m_supported_formats;
 };
 
-}  // namespace usb_cam
+}  // namespace gphoto2_cam
 
 #endif  // USB_CAM__USB_CAM_HPP_

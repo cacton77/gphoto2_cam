@@ -31,10 +31,10 @@
 
 #include <linux/videodev2.h>
 
-#include "usb_cam/formats/pixel_format_base.hpp"
+#include "gphoto2_cam/formats/pixel_format_base.hpp"
 
 TEST(test_pixel_formats, pixel_format_base_class) {
-  auto test_pix_fmt = usb_cam::formats::default_pixel_format();
+  auto test_pix_fmt = gphoto2_cam::formats::default_pixel_format();
 
   EXPECT_EQ(test_pix_fmt.name(), "yuyv");
   EXPECT_EQ(test_pix_fmt.v4l2(), V4L2_PIX_FMT_YUYV);

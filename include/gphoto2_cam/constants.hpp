@@ -35,7 +35,7 @@
 #include <vector>
 
 
-namespace usb_cam
+namespace gphoto2_cam
 {
 namespace constants
 {
@@ -152,6 +152,6 @@ const std::vector<unsigned char> uchar_clipping_table = {
 const int clipping_table_offset = 128;
 
 }  // namespace constants
-}  // namespace usb_cam
+}  // namespace gphoto2_cam
 
 #endif  // USB_CAM__CONSTANTS_HPP_

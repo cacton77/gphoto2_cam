@@ -30,9 +30,9 @@
 #ifndef USB_CAM__FORMATS__UTILS_HPP_
 #define USB_CAM__FORMATS__UTILS_HPP_
 
-#include "usb_cam/utils.hpp"
+#include "gphoto2_cam/utils.hpp"
 
-namespace usb_cam
+namespace gphoto2_cam
 {
 namespace formats
 {
@@ -49,8 +49,8 @@ inline unsigned char CLIPVALUE(const int & val)
 
   try {
     // New method array
-    return usb_cam::constants::uchar_clipping_table.at(
-      val + usb_cam::constants::clipping_table_offset);
+    return gphoto2_cam::constants::uchar_clipping_table.at(
+      val + gphoto2_cam::constants::clipping_table_offset);
   } catch (std::out_of_range const &) {
     // fall back to old method
     unsigned char clipped_val = val < 0 ? 0 : static_cast<unsigned char>(val);
@@ -103,6 +103,6 @@ inline void YUV2RGB(
 }
 
 }  // namespace formats
-}  // namespace usb_cam
+}  // namespace gphoto2_cam
 
 #endif  // USB_CAM__FORMATS__UTILS_HPP_

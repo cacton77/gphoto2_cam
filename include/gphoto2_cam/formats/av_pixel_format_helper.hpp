@@ -38,12 +38,12 @@ extern "C" {
 #include "libavutil/pixfmt.h"
 }
 
-#include "usb_cam/constants.hpp"
+#include "gphoto2_cam/constants.hpp"
 
 #define stringify(name) #name
 
 
-namespace usb_cam
+namespace gphoto2_cam
 {
 namespace formats
 {
@@ -971,61 +971,61 @@ inline std::string get_ros_pixel_format_from_av_format(const AVPixelFormat & avP
   switch (avPixelFormat) {
     default:
       {
-        ros_format = usb_cam::constants::UNKNOWN;
+        ros_format = gphoto2_cam::constants::UNKNOWN;
       }
       break;
 
     case AVPixelFormat::AV_PIX_FMT_RGB24:
       {
-        ros_format = usb_cam::constants::RGB8;
+        ros_format = gphoto2_cam::constants::RGB8;
       }
       break;
 
     case AVPixelFormat::AV_PIX_FMT_RGBA:
       {
-        ros_format = usb_cam::constants::RGBA8;
+        ros_format = gphoto2_cam::constants::RGBA8;
       }
       break;
 
     case AVPixelFormat::AV_PIX_FMT_BGR24:
       {
-        ros_format = usb_cam::constants::BGR8;
+        ros_format = gphoto2_cam::constants::BGR8;
       }
       break;
 
     case AVPixelFormat::AV_PIX_FMT_BGRA:
       {
-        ros_format = usb_cam::constants::BGRA8;
+        ros_format = gphoto2_cam::constants::BGRA8;
       }
       break;
 
     case AVPixelFormat::AV_PIX_FMT_GRAY8:
       {
-        ros_format = usb_cam::constants::MONO8;
+        ros_format = gphoto2_cam::constants::MONO8;
       }
       break;
 
     case AVPixelFormat::AV_PIX_FMT_GRAY16BE:
       {
-        ros_format = usb_cam::constants::MONO16;
+        ros_format = gphoto2_cam::constants::MONO16;
       }
       break;
 
     case AVPixelFormat::AV_PIX_FMT_YUV422P:
       {
-        ros_format = usb_cam::constants::YUV422;
+        ros_format = gphoto2_cam::constants::YUV422;
       }
       break;
 
     case AVPixelFormat::AV_PIX_FMT_YUV420P:
       {
-        ros_format = usb_cam::constants::NV21;
+        ros_format = gphoto2_cam::constants::NV21;
       }
       break;
 
     case AVPixelFormat::AV_PIX_FMT_YUV444P:
       {
-        ros_format = usb_cam::constants::NV24;
+        ros_format = gphoto2_cam::constants::NV24;
       }
       break;
   }
@@ -1140,6 +1140,6 @@ inline uint8_t get_bit_depth_from_av_format(const std::string & avPixelFormatStr
 }
 
 }  // namespace formats
-}  // namespace usb_cam
+}  // namespace gphoto2_cam
 
 #endif  // USB_CAM__FORMATS__AV_PIXEL_FORMAT_HELPER_HPP_
