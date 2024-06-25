@@ -200,7 +200,9 @@ void gPhoto2CamNode::init()
   }
 
   // configure the camera
+  RCLCPP_INFO(this->get_logger(), "Configuring camera");
   m_camera->configure(m_parameters, io_method);
+  RCLCPP_INFO(this->get_logger(), "Done configuring camera");
 
   set_gphoto2_params();
 

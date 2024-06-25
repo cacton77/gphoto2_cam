@@ -58,6 +58,187 @@ namespace gphoto2_cam
 
 using utils::io_method_t;
 
+struct ConfigOption {
+    std::string name;
+    std::string value;
+};
+
+void getWidgetValue(CameraWidget *widget, std::vector<ConfigOption>& options) {
+    const char *name;
+    gp_widget_get_name(widget, &name);
+
+
+    CameraWidgetType type;
+    gp_widget_get_type(widget, &type);
+
+
+    // Handle different types of widgets
+    switch (type) {
+        case GP_WIDGET_WINDOW:
+        case GP_WIDGET_SECTION:
+        case GP_WIDGET_TEXT: {
+            const char *value;
+            if (gp_widget_get_value(widget, &value) == GP_OK) {
+                int id;
+                int readonly;
+                const char* label;
+                const char* info;
+                gp_widget_get_id(widget, &id);
+                gp_widget_get_readonly(widget, &readonly);
+                gp_widget_get_label(widget, &label);
+                gp_widget_get_info(widget, &info);
+                std::cout << name << ": " << std::endl;
+                std::cout << "\t" << "Type: " << "TEXT" << std::endl;
+                std::cout << "\t" << "ID: " << id << std::endl;
+                std::cout << "\t" << "Read only: " << readonly << std::endl;
+                std::cout << "\t" << "Label: " << label << std::endl;
+                std::cout << "\t" << "Info: " << info << std::endl;
+                std::cout << "\t" << "Value: " << value << std::endl;
+            }
+            break;
+        }
+        case GP_WIDGET_RANGE: {
+            const char *value;
+            if (gp_widget_get_value(widget, &value) == GP_OK) {
+                int id;
+                int readonly;
+                const char* label;
+                gp_widget_get_id(widget, &id);
+                gp_widget_get_readonly(widget, &readonly);
+                gp_widget_get_label(widget, &label);
+                std::cout << name << ": " << std::endl;
+                std::cout << "\t" << "Type: " << "RANGE" << std::endl;
+                std::cout << "\t" << "ID: " << id << std::endl;
+                std::cout << "\t" << "Read only: " << readonly << std::endl;
+                std::cout << "\t" << "Label: " << label << std::endl;
+                std::cout << "\t" << "Value: " << value << std::endl;
+            }
+            break;
+        }
+        case GP_WIDGET_TOGGLE: {
+            int value;
+            if (gp_widget_get_value(widget, &value) == GP_OK) {
+                int id;
+                int readonly;
+                const char* label;
+                gp_widget_get_id(widget, &id);
+                gp_widget_get_readonly(widget, &readonly);
+                gp_widget_get_label(widget, &label);
+                std::cout << name << ": " << std::endl;
+                std::cout << "\t" << "Type: " << "TOGGLE" << std::endl;
+                std::cout << "\t" << "ID: " << id << std::endl;
+                std::cout << "\t" << "Read only: " << readonly << std::endl;
+                std::cout << "\t" << "Label: " << label << std::endl;
+                std::cout << "\t" << "Value: " << (value ? "On" : "Off") << std::endl;
+                options.push_back({name, std::to_string(value)});
+            }
+            break;
+        }
+        case GP_WIDGET_RADIO: {
+            const char *value;
+            if (gp_widget_get_value(widget, &value) == GP_OK) {
+                int id;
+                int readonly;
+                const char* label;
+                gp_widget_get_id(widget, &id);
+                gp_widget_get_readonly(widget, &readonly);
+                gp_widget_get_label(widget, &label);
+                std::cout << name << ": " << std::endl;
+                std::cout << "\t" << "Type: " << "RADIO" << std::endl;
+                std::cout << "\t" << "ID: " << id << std::endl;
+                std::cout << "\t" << "Read only: " << readonly << std::endl;
+                std::cout << "\t" << "Label: " << label << std::endl;
+                std::cout << "\t" << "Value: " << value << std::endl;
+                // New code to print choices
+                int choiceCount = gp_widget_count_choices(widget);
+                std::cout << "\t" << "Choices: " << std::endl;
+                for (int i = 0; i < choiceCount; ++i) {
+                    const char* choice;
+                    if (gp_widget_get_choice(widget, i, &choice) == GP_OK) {
+                        std::cout << "\t\t" << "- " << choice << std::endl;
+                    }
+                }
+                options.push_back({name, value});
+            }
+            break;
+        }
+        case GP_WIDGET_MENU: {
+            const char *value;
+            if (gp_widget_get_value(widget, &value) == GP_OK) {
+                int id;
+                int readonly;
+                const char* label;
+                gp_widget_get_id(widget, &id);
+                gp_widget_get_readonly(widget, &readonly);
+                gp_widget_get_label(widget, &label);
+                std::cout << name << ": " << std::endl;
+                std::cout << "\t" << "Type: " << "MENU" << std::endl;
+                std::cout << "\t" << "ID: " << id << std::endl;
+                std::cout << "\t" << "Read only: " << readonly << std::endl;
+                std::cout << "\t" << "Label: " << label << std::endl;
+                std::cout << "\t" << "Value: " << value << std::endl;
+                // New code to print choices
+                int choiceCount = gp_widget_count_choices(widget);
+                std::cout << "\t" << "Choices: " << std::endl;
+                for (int i = 0; i < choiceCount; ++i) {
+                    const char* choice;
+                    if (gp_widget_get_choice(widget, i, &choice) == GP_OK) {
+                        std::cout << "\t\t" << "- " << choice << std::endl;
+                    }
+                }
+                options.push_back({name, value});
+            }
+            break;
+        }
+        case GP_WIDGET_BUTTON: {
+            int value;
+            if (gp_widget_get_value(widget, &value) == GP_OK) {
+                int id;
+                int readonly;
+                const char* label;
+                gp_widget_get_id(widget, &id);
+                gp_widget_get_readonly(widget, &readonly);
+                gp_widget_get_label(widget, &label);
+                std::cout << name << ": " << std::endl;
+                std::cout << "\t" << "Type: " << "BUTTON" << std::endl;
+                std::cout << "\t" << "ID: " << id << std::endl;
+                std::cout << "\t" << "Read only: " << readonly << std::endl;
+                std::cout << "\t" << "Label: " << label << std::endl;
+                std::cout << "\t" << "Value: " << (value ? "On" : "Off") << std::endl;
+                options.push_back({name, std::to_string(value)});
+            }
+            break;
+        }
+        case GP_WIDGET_DATE:
+        // Add cases for other widget types as needed
+        default:
+            // Handle or log unsupported widget types
+            break;
+    }
+
+    // Recurse into children if any.
+    int children = gp_widget_count_children(widget);
+    for (int i = 0; i < children; ++i) {
+        CameraWidget *child;
+        if (gp_widget_get_child(widget, i, &child) == GP_OK) {
+            getWidgetValue(child, options);
+        }
+    }
+}
+
+std::vector<ConfigOption> getAllConfigOptions(Camera *camera, GPContext *context) {
+    std::vector<ConfigOption> options;
+
+    CameraWidget *rootWidget = nullptr;
+
+    gp_camera_get_config(camera, &rootWidget, context);
+
+    getWidgetValue(rootWidget, options);
+
+    gp_widget_free(rootWidget);
+    return options;
+}
+
 
 gPhoto2Cam::gPhoto2Cam()
   : m_device_name(), m_io(io_method_t::IO_METHOD_MMAP), m_fd(-1),
@@ -532,22 +713,13 @@ void gPhoto2Cam::open_device()
   m_camera = camera;
   m_context = context;
 
-  /// REMOVE THE REST
-  struct stat st;
+  // List all config
+  std::cout << "Hello world." <<std::endl;
+  auto options = getAllConfigOptions(camera, context);
 
-  if (-1 == stat(m_device_name.c_str(), &st)) {
-    throw strerror(errno);
-  }
+  gp_camera_unref(camera);
+  gp_context_unref(context);
 
-  if (!S_ISCHR(st.st_mode)) {
-    throw strerror(errno);
-  }
-
-  m_fd = open(m_device_name.c_str(), O_RDWR /* required */ | O_NONBLOCK, 0);
-
-  if (-1 == m_fd) {
-    throw strerror(errno);
-  }
 }
 
 void gPhoto2Cam::configure(
