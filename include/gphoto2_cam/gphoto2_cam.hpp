@@ -42,6 +42,7 @@ extern "C" {
 #include <iostream>
 #include <string>
 #include <vector>
+#include <variant>
 
 #include "gphoto2_cam/utils.hpp"
 #include "gphoto2_cam/formats/pixel_format_base.hpp"
@@ -102,6 +103,40 @@ typedef struct
   struct v4l2_fmtdesc format;
   struct v4l2_frmivalenum v4l2_fmt;
 } capture_format_t;
+
+// Please pass (char*) for GP_WIDGET_MENU, GP_WIDGET_TEXT, GP_WIDGET_RADIO, (float) for GP_WIDGET_RANGE
+typedef struct
+{
+  std::string name;
+  std::string label;
+  int id;
+  int readonly;
+  char* value;
+  std::vector<const char*>  choices;
+} char_config_t;
+
+typedef struct
+{
+  std::string name;
+  std::string label;
+  int id;
+  int readonly;
+  float value;
+  float min;
+  float max;
+  float increment;
+} float_config_t;
+
+typedef struct
+{
+  std::string name;
+  std::string label;
+  int id;
+  int readonly;
+  int value;
+} int_config_t;
+
+typedef std::unordered_map<std::string, std::variant<char_config_t, float_config_t, int_config_t>> config_map_t;
 
 typedef struct
 {
