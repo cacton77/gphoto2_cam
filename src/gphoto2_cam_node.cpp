@@ -68,21 +68,21 @@ gPhoto2CamNode::gPhoto2CamNode(const rclcpp::NodeOptions & node_options)
   this->declare_parameter("frame_id", "default_cam");
   this->declare_parameter("image_height", 480);
   this->declare_parameter("image_width", 640);
-  this->declare_parameter("io_method", "mmap");
-  this->declare_parameter("pixel_format", "yuyv");
-  this->declare_parameter("av_device_format", "YUV422P");
-  this->declare_parameter("video_device", "/dev/video0");
-  this->declare_parameter("brightness", 50);  // 0-255, -1 "leave alone"
-  this->declare_parameter("contrast", -1);    // 0-255, -1 "leave alone"
-  this->declare_parameter("saturation", -1);  // 0-255, -1 "leave alone"
-  this->declare_parameter("sharpness", -1);   // 0-255, -1 "leave alone"
-  this->declare_parameter("gain", -1);        // 0-100?, -1 "leave alone"
-  this->declare_parameter("auto_white_balance", true);
-  this->declare_parameter("white_balance", 4000);
-  this->declare_parameter("autoexposure", true);
-  this->declare_parameter("exposure", 100);
-  this->declare_parameter("autofocus", false);
-  this->declare_parameter("focus", -1);  // 0-255, -1 "leave alone"
+  // this->declare_parameter("io_method", "mmap");
+  // this->declare_parameter("pixel_format", "yuyv");
+  // this->declare_parameter("av_device_format", "YUV422P");
+  // this->declare_parameter("video_device", "/dev/video0");
+  // this->declare_parameter("brightness", 50);  // 0-255, -1 "leave alone"
+  // this->declare_parameter("contrast", -1);    // 0-255, -1 "leave alone"
+  // this->declare_parameter("saturation", -1);  // 0-255, -1 "leave alone"
+  // this->declare_parameter("sharpness", -1);   // 0-255, -1 "leave alone"
+  // this->declare_parameter("gain", -1);        // 0-100?, -1 "leave alone"
+  // this->declare_parameter("auto_white_balance", true);
+  // this->declare_parameter("white_balance", 4000);
+  // this->declare_parameter("autoexposure", true);
+  // this->declare_parameter("exposure", 100);
+  // this->declare_parameter("autofocus", false);
+  // this->declare_parameter("focus", -1);  // 0-255, -1 "leave alone"
 
   get_params();
   init();
@@ -153,21 +153,21 @@ void gPhoto2CamNode::init()
   }
 
   // Check if given device name is an available v4l2 device
-  auto available_devices = gphoto2_cam::utils::available_devices();
-  if (available_devices.find(m_parameters.device_name) == available_devices.end()) {
-    RCLCPP_ERROR_STREAM(
-      this->get_logger(),
-      "Device specified is not available or is not a vaild V4L2 device: `" <<
-        m_parameters.device_name << "`"
-    );
-    RCLCPP_INFO(this->get_logger(), "Available V4L2 devices are:");
-    for (const auto & device : available_devices) {
-      RCLCPP_INFO_STREAM(this->get_logger(), "    " << device.first);
-      RCLCPP_INFO_STREAM(this->get_logger(), "        " << device.second.card);
-    }
-    rclcpp::shutdown();
-    return;
-  }
+  // auto available_devices = gphoto2_cam::utils::available_devices();
+  // if (available_devices.find(m_parameters.device_name) == available_devices.end()) {
+  //   RCLCPP_ERROR_STREAM(
+  //     this->get_logger(),
+  //     "Device specified is not available or is not a vaild V4L2 device: `" <<
+  //       m_parameters.device_name << "`"
+  //   );
+  //   RCLCPP_INFO(this->get_logger(), "Available V4L2 devices are:");
+  //   for (const auto & device : available_devices) {
+  //     RCLCPP_INFO_STREAM(this->get_logger(), "    " << device.first);
+  //     RCLCPP_INFO_STREAM(this->get_logger(), "        " << device.second.card);
+  //   }
+  //   rclcpp::shutdown();
+  //   return;
+  // }
 
   // if pixel format is equal to 'mjpeg', i.e. raw mjpeg stream, initialize compressed image message
   // and publisher
@@ -183,26 +183,53 @@ void gPhoto2CamNode::init()
   }
 
   m_image_msg->header.frame_id = m_parameters.frame_id;
-  RCLCPP_INFO(
-    this->get_logger(), "Starting '%s' (%s) at %dx%d via %s (%s) at %i FPS",
-    m_parameters.camera_name.c_str(), m_parameters.device_name.c_str(),
-    m_parameters.image_width, m_parameters.image_height, m_parameters.io_method_name.c_str(),
-    m_parameters.pixel_format_name.c_str(), m_parameters.framerate);
+  // RCLCPP_INFO(
+  //   this->get_logger(), "Starting '%s' (%s) at %dx%d via %s (%s) at %i FPS",
+  //   m_parameters.camera_name.c_str(), m_parameters.device_name.c_str(),
+  //   m_parameters.image_width, m_parameters.image_height, m_parameters.io_method_name.c_str(),
+  //   m_parameters.pixel_format_name.c_str(), m_parameters.framerate);
   // set the IO method
-  io_method_t io_method =
-    gphoto2_cam::utils::io_method_from_string(m_parameters.io_method_name);
-  if (io_method == gphoto2_cam::utils::IO_METHOD_UNKNOWN) {
-    RCLCPP_ERROR_ONCE(
-      this->get_logger(),
-      "Unknown IO method '%s'", m_parameters.io_method_name.c_str());
-    rclcpp::shutdown();
-    return;
-  }
+  // io_method_t io_method =
+    // gphoto2_cam::utils::io_method_from_string(m_parameters.io_method_name);
+  // if (io_method == gphoto2_cam::utils::IO_METHOD_UNKNOWN) {
+  //   RCLCPP_ERROR_ONCE(
+  //     this->get_logger(),
+  //     "Unknown IO method '%s'", m_parameters.io_method_name.c_str());
+  //   rclcpp::shutdown();
+  //   return;
+  // }
 
   // configure the camera
   RCLCPP_INFO(this->get_logger(), "Configuring camera");
-  m_camera->configure(m_parameters, io_method);
+  m_camera->configure(m_parameters, m_config_map);
   RCLCPP_INFO(this->get_logger(), "Done configuring camera");
+
+  for (const auto& entry : m_config_map) {
+      const std::string& key = entry.first;
+
+      if (auto* char_config = std::get_if<char_config_t>(&m_config_map[key])) {
+          rcl_interfaces::msg::ParameterDescriptor descriptor;
+          descriptor.description = char_config->label;
+          descriptor.read_only = char_config->readonly;
+          for (size_t i = 0; i < char_config->choices.size(); i++) {
+              descriptor.additional_constraints += std::string(char_config->choices[i]) + "\n";
+          }
+          this->declare_parameter(key, std::string(char_config->value), descriptor);
+
+      } else if (auto* float_config = std::get_if<float_config_t>(&m_config_map[key])) {
+          rcl_interfaces::msg::ParameterDescriptor descriptor;
+          descriptor.description = float_config->label;
+          descriptor.read_only = float_config->readonly;
+          this->declare_parameter(key, float_config->value);
+
+      } else if (auto* int_config = std::get_if<int_config_t>(&m_config_map[key])) {
+          rcl_interfaces::msg::ParameterDescriptor descriptor;
+          descriptor.description = int_config->label;
+          descriptor.read_only = int_config->readonly;
+          this->declare_parameter(key, int_config->value);
+
+      }
+  }
 
   set_gphoto2_params();
 
@@ -224,9 +251,6 @@ void gPhoto2CamNode::get_params()
   auto parameters = parameters_client->get_parameters(
     {
       "camera_name", "camera_info_url", "frame_id", "framerate", "image_height", "image_width",
-      "io_method", "pixel_format", "av_device_format", "video_device", "brightness", "contrast",
-      "saturation", "sharpness", "gain", "auto_white_balance", "white_balance", "autoexposure",
-      "exposure", "autofocus", "focus"
     }
   );
 
@@ -251,35 +275,35 @@ void gPhoto2CamNode::assign_params(const std::vector<rclcpp::Parameter> & parame
     } else if (parameter.get_name() == "image_width") {
       m_parameters.image_width = parameter.as_int();
     } else if (parameter.get_name() == "io_method") {
-      m_parameters.io_method_name = parameter.value_to_string();
+      // m_parameters.io_method_name = parameter.value_to_string();
     } else if (parameter.get_name() == "pixel_format") {
-      m_parameters.pixel_format_name = parameter.value_to_string();
+      // m_parameters.pixel_format_name = parameter.value_to_string();
     } else if (parameter.get_name() == "av_device_format") {
-      m_parameters.av_device_format = parameter.value_to_string();
+      // m_parameters.av_device_format = parameter.value_to_string();
     } else if (parameter.get_name() == "video_device") {
-      m_parameters.device_name = resolve_device_path(parameter.value_to_string());
+      // m_parameters.device_name = resolve_device_path(parameter.value_to_string());
     } else if (parameter.get_name() == "brightness") {
-      m_parameters.brightness = parameter.as_int();
+      // m_parameters.brightness = parameter.as_int();
     } else if (parameter.get_name() == "contrast") {
-      m_parameters.contrast = parameter.as_int();
+      // m_parameters.contrast = parameter.as_int();
     } else if (parameter.get_name() == "saturation") {
-      m_parameters.saturation = parameter.as_int();
+      // m_parameters.saturation = parameter.as_int();
     } else if (parameter.get_name() == "sharpness") {
-      m_parameters.sharpness = parameter.as_int();
+      // m_parameters.sharpness = parameter.as_int();
     } else if (parameter.get_name() == "gain") {
-      m_parameters.gain = parameter.as_int();
+      // m_parameters.gain = parameter.as_int();
     } else if (parameter.get_name() == "auto_white_balance") {
-      m_parameters.auto_white_balance = parameter.as_bool();
+      // m_parameters.auto_white_balance = parameter.as_bool();
     } else if (parameter.get_name() == "white_balance") {
-      m_parameters.white_balance = parameter.as_int();
+      // m_parameters.white_balance = parameter.as_int();
     } else if (parameter.get_name() == "autoexposure") {
-      m_parameters.autoexposure = parameter.as_bool();
+      // m_parameters.autoexposure = parameter.as_bool();
     } else if (parameter.get_name() == "exposure") {
-      m_parameters.exposure = parameter.as_int();
+      // m_parameters.exposure = parameter.as_int();
     } else if (parameter.get_name() == "autofocus") {
-      m_parameters.autofocus = parameter.as_bool();
+      // m_parameters.autofocus = parameter.as_bool();
     } else if (parameter.get_name() == "focus") {
-      m_parameters.focus = parameter.as_int();
+      // m_parameters.focus = parameter.as_int();
     } else {
       RCLCPP_WARN(this->get_logger(), "Invalid parameter name: %s", parameter.get_name().c_str());
     }
@@ -291,67 +315,67 @@ void gPhoto2CamNode::assign_params(const std::vector<rclcpp::Parameter> & parame
 void gPhoto2CamNode::set_gphoto2_params()
 {
   // set camera parameters
-  if (m_parameters.brightness >= 0) {
-    RCLCPP_INFO(this->get_logger(), "Setting 'brightness' to %d", m_parameters.brightness);
-    m_camera->set_gphoto2_parameter("brightness", m_parameters.brightness);
-  }
+  // if (m_parameters.brightness >= 0) {
+  //   RCLCPP_INFO(this->get_logger(), "Setting 'brightness' to %d", m_parameters.brightness);
+  //   // m_camera->set_gphoto2_parameter("brightness", m_parameters.brightness);
+  // }
 
-  if (m_parameters.contrast >= 0) {
-    RCLCPP_INFO(this->get_logger(), "Setting 'contrast' to %d", m_parameters.contrast);
-    m_camera->set_gphoto2_parameter("contrast", m_parameters.contrast);
-  }
+  // if (m_parameters.contrast >= 0) {
+  //   RCLCPP_INFO(this->get_logger(), "Setting 'contrast' to %d", m_parameters.contrast);
+  //   // m_camera->set_gphoto2_parameter("contrast", m_parameters.contrast);
+  // }
 
-  if (m_parameters.saturation >= 0) {
-    RCLCPP_INFO(this->get_logger(), "Setting 'saturation' to %d", m_parameters.saturation);
-    m_camera->set_gphoto2_parameter("saturation", m_parameters.saturation);
-  }
+  // if (m_parameters.saturation >= 0) {
+  //   RCLCPP_INFO(this->get_logger(), "Setting 'saturation' to %d", m_parameters.saturation);
+  //   // m_camera->set_gphoto2_parameter("saturation", m_parameters.saturation);
+  // }
 
-  if (m_parameters.sharpness >= 0) {
-    RCLCPP_INFO(this->get_logger(), "Setting 'sharpness' to %d", m_parameters.sharpness);
-    m_camera->set_gphoto2_parameter("sharpness", m_parameters.sharpness);
-  }
+  // if (m_parameters.sharpness >= 0) {
+  //   RCLCPP_INFO(this->get_logger(), "Setting 'sharpness' to %d", m_parameters.sharpness);
+  //   // m_camera->set_gphoto2_parameter("sharpness", m_parameters.sharpness);
+  // }
 
-  if (m_parameters.gain >= 0) {
-    RCLCPP_INFO(this->get_logger(), "Setting 'gain' to %d", m_parameters.gain);
-    m_camera->set_gphoto2_parameter("gain", m_parameters.gain);
-  }
+  // if (m_parameters.gain >= 0) {
+  //   RCLCPP_INFO(this->get_logger(), "Setting 'gain' to %d", m_parameters.gain);
+  //   // m_camera->set_gphoto2_parameter("gain", m_parameters.gain);
+  // }
 
-  // check auto white balance
-  if (m_parameters.auto_white_balance) {
-    m_camera->set_gphoto2_parameter("white_balance_temperature_auto", 1);
-    RCLCPP_INFO(this->get_logger(), "Setting 'white_balance_temperature_auto' to %d", 1);
-  } else {
-    RCLCPP_INFO(this->get_logger(), "Setting 'white_balance' to %d", m_parameters.white_balance);
-    m_camera->set_gphoto2_parameter("white_balance_temperature_auto", 0);
-    m_camera->set_gphoto2_parameter("white_balance_temperature", m_parameters.white_balance);
-  }
+  // // check auto white balance
+  // if (m_parameters.auto_white_balance) {
+  //   // m_camera->set_gphoto2_parameter("white_balance_temperature_auto", 1);
+  //   RCLCPP_INFO(this->get_logger(), "Setting 'white_balance_temperature_auto' to %d", 1);
+  // } else {
+  //   RCLCPP_INFO(this->get_logger(), "Setting 'white_balance' to %d", m_parameters.white_balance);
+  //   // m_camera->set_gphoto2_parameter("white_balance_temperature_auto", 0);
+  //   // m_camera->set_gphoto2_parameter("white_balance_temperature", m_parameters.white_balance);
+  // }
 
-  // check auto exposure
-  if (!m_parameters.autoexposure) {
-    RCLCPP_INFO(this->get_logger(), "Setting 'exposure_auto' to %d", 1);
-    RCLCPP_INFO(this->get_logger(), "Setting 'exposure' to %d", m_parameters.exposure);
-    // turn down exposure control (from max of 3)
-    m_camera->set_gphoto2_parameter("exposure_auto", 1);
-    // change the exposure level
-    m_camera->set_gphoto2_parameter("exposure_absolute", m_parameters.exposure);
-  } else {
-    RCLCPP_INFO(this->get_logger(), "Setting 'exposure_auto' to %d", 3);
-    m_camera->set_gphoto2_parameter("exposure_auto", 3);
-  }
+  // // check auto exposure
+  // if (!m_parameters.autoexposure) {
+  //   RCLCPP_INFO(this->get_logger(), "Setting 'exposure_auto' to %d", 1);
+  //   RCLCPP_INFO(this->get_logger(), "Setting 'exposure' to %d", m_parameters.exposure);
+  //   // turn down exposure control (from max of 3)
+  //   // m_camera->set_gphoto2_parameter("exposure_auto", 1);
+  //   // change the exposure level
+  //   // m_camera->set_gphoto2_parameter("exposure_absolute", m_parameters.exposure);
+  // } else {
+  //   RCLCPP_INFO(this->get_logger(), "Setting 'exposure_auto' to %d", 3);
+  //   // m_camera->set_gphoto2_parameter("exposure_auto", 3);
+  // }
 
-  // check auto focus
-  if (m_parameters.autofocus) {
-    m_camera->set_auto_focus(1);
-    RCLCPP_INFO(this->get_logger(), "Setting 'focus_auto' to %d", 1);
-    m_camera->set_gphoto2_parameter("focus_auto", 1);
-  } else {
-    RCLCPP_INFO(this->get_logger(), "Setting 'focus_auto' to %d", 0);
-    m_camera->set_gphoto2_parameter("focus_auto", 0);
-    if (m_parameters.focus >= 0) {
-      RCLCPP_INFO(this->get_logger(), "Setting 'focus_absolute' to %d", m_parameters.focus);
-      m_camera->set_gphoto2_parameter("focus_absolute", m_parameters.focus);
-    }
-  }
+  // // check auto focus
+  // if (m_parameters.autofocus) {
+  //   // m_camera->set_auto_focus(1);
+  //   RCLCPP_INFO(this->get_logger(), "Setting 'focus_auto' to %d", 1);
+  //   // m_camera->set_gphoto2_parameter("focus_auto", 1);
+  // } else {
+  //   RCLCPP_INFO(this->get_logger(), "Setting 'focus_auto' to %d", 0);
+  //   // m_camera->set_gphoto2_parameter("focus_auto", 0);
+  //   if (m_parameters.focus >= 0) {
+  //     RCLCPP_INFO(this->get_logger(), "Setting 'focus_absolute' to %d", m_parameters.focus);
+  //     // m_camera->set_gphoto2_parameter("focus_absolute", m_parameters.focus);
+  //   }
+  // }
 }
 
 bool gPhoto2CamNode::take_and_send_image()
@@ -360,7 +384,7 @@ bool gPhoto2CamNode::take_and_send_image()
   if (sizeof(m_image_msg->data) != m_camera->get_image_size_in_bytes()) {
     m_image_msg->width = m_camera->get_image_width();
     m_image_msg->height = m_camera->get_image_height();
-    m_image_msg->encoding = m_camera->get_pixel_format()->ros();
+    // m_image_msg->encoding = m_camera->get_pixel_format()->ros();
     m_image_msg->step = m_camera->get_image_step();
     if (m_image_msg->step == 0) {
       // Some formats don't have a linesize specified by v4l2

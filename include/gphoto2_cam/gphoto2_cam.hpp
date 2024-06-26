@@ -60,49 +60,49 @@ extern "C" {
 namespace gphoto2_cam
 {
 
-using gphoto2_cam::utils::io_method_t;
-using gphoto2_cam::formats::pixel_format_base;
+// using gphoto2_cam::utils::io_method_t;
+// using gphoto2_cam::formats::pixel_format_base;
 
 /// @brief Add more formats here and to driver_supported_formats below as
 /// they are added to this library
-using gphoto2_cam::formats::RGB8;
-using gphoto2_cam::formats::YUYV;
-using gphoto2_cam::formats::YUYV2RGB;
-using gphoto2_cam::formats::UYVY;
-using gphoto2_cam::formats::UYVY2RGB;
-using gphoto2_cam::formats::MONO8;
-using gphoto2_cam::formats::MONO16;
-using gphoto2_cam::formats::Y102MONO8;
-using gphoto2_cam::formats::RAW_MJPEG;
-using gphoto2_cam::formats::MJPEG2RGB;
-using gphoto2_cam::formats::M4202RGB;
+// using gphoto2_cam::formats::RGB8;
+// using gphoto2_cam::formats::YUYV;
+// using gphoto2_cam::formats::YUYV2RGB;
+// using gphoto2_cam::formats::UYVY;
+// using gphoto2_cam::formats::UYVY2RGB;
+// using gphoto2_cam::formats::MONO8;
+// using gphoto2_cam::formats::MONO16;
+// using gphoto2_cam::formats::Y102MONO8;
+// using gphoto2_cam::formats::RAW_MJPEG;
+// using gphoto2_cam::formats::MJPEG2RGB;
+// using gphoto2_cam::formats::M4202RGB;
 
 
 /// @brief list all supported formats that this driver supports
-std::vector<std::shared_ptr<pixel_format_base>> driver_supported_formats(
-  const formats::format_arguments_t & args = formats::format_arguments_t())
-{
-  std::vector<std::shared_ptr<pixel_format_base>> fmts = {
-    std::make_shared<RGB8>(args),
-    std::make_shared<YUYV>(args),
-    std::make_shared<YUYV2RGB>(args),
-    std::make_shared<UYVY>(args),
-    std::make_shared<UYVY2RGB>(args),
-    std::make_shared<MONO8>(args),
-    std::make_shared<MONO16>(args),
-    std::make_shared<Y102MONO8>(args),
-    std::make_shared<RAW_MJPEG>(args),
-    std::make_shared<MJPEG2RGB>(args),
-    std::make_shared<M4202RGB>(args),
-  };
-  return fmts;
-}
+// std::vector<std::shared_ptr<pixel_format_base>> driver_supported_formats(
+//   const formats::format_arguments_t & args = formats::format_arguments_t())
+// {
+//   std::vector<std::shared_ptr<pixel_format_base>> fmts = {
+//     std::make_shared<RGB8>(args),
+//     std::make_shared<YUYV>(args),
+//     std::make_shared<YUYV2RGB>(args),
+//     std::make_shared<UYVY>(args),
+//     std::make_shared<UYVY2RGB>(args),
+//     std::make_shared<MONO8>(args),
+//     std::make_shared<MONO16>(args),
+//     std::make_shared<Y102MONO8>(args),
+//     std::make_shared<RAW_MJPEG>(args),
+//     std::make_shared<MJPEG2RGB>(args),
+//     std::make_shared<M4202RGB>(args),
+//   };
+//   return fmts;
+// }
 
-typedef struct
-{
-  struct v4l2_fmtdesc format;
-  struct v4l2_frmivalenum v4l2_fmt;
-} capture_format_t;
+// typedef struct
+// {
+//   struct v4l2_fmtdesc format;
+//   struct v4l2_frmivalenum v4l2_fmt;
+// } capture_format_t;
 
 // Please pass (char*) for GP_WIDGET_MENU, GP_WIDGET_TEXT, GP_WIDGET_RADIO, (float) for GP_WIDGET_RANGE
 typedef struct
@@ -111,8 +111,8 @@ typedef struct
   std::string label;
   int id;
   int readonly;
-  char* value;
-  std::vector<const char*>  choices;
+  std::string value;
+  std::vector<std::string>  choices;
 } char_config_t;
 
 typedef struct
@@ -143,7 +143,7 @@ typedef struct
   std::string camera_name;  // can be anything
   std::string device_name;  // usually /dev/video0 or something similiar
   std::string frame_id;
-  std::string io_method_name;
+  // std::string io_method_name;
   std::string camera_info_url;
   // these parameters all have to be a combination supported by the device
   // Use
@@ -151,21 +151,21 @@ typedef struct
   // to discover them,
   // or guvcview
   std::string pixel_format_name;
-  std::string av_device_format;
+  // std::string av_device_format;
   int image_width;
   int image_height;
   int framerate;
-  int brightness;
-  int contrast;
-  int saturation;
-  int sharpness;
-  int gain;
-  int white_balance;
-  int exposure;
-  int focus;
-  bool auto_white_balance;
-  bool autoexposure;
-  bool autofocus;
+  // int brightness;
+  // int contrast;
+  // int saturation;
+  // int sharpness;
+  // int gain;
+  // int white_balance;
+  // int exposure;
+  // int focus;
+  // bool auto_white_balance;
+  // bool autoexposure;
+  // bool autofocus;
 } parameters_t;
 
 typedef struct
@@ -173,34 +173,34 @@ typedef struct
   char * data;
   size_t width;
   size_t height;
-  std::shared_ptr<pixel_format_base> pixel_format;
+  // std::shared_ptr<pixel_format_base> pixel_format;
   size_t number_of_pixels;
   size_t bytes_per_line;
   size_t size_in_bytes;
-  v4l2_format v4l2_fmt;
+  // v4l2_format v4l2_fmt;
   struct timespec stamp;
 
-  size_t set_number_of_pixels()
-  {
-    number_of_pixels = width * height;
-    return number_of_pixels;
-  }
-  size_t set_bytes_per_line()
-  {
-    bytes_per_line = width * pixel_format->byte_depth() * pixel_format->channels();
-    return bytes_per_line;
-  }
-  size_t set_size_in_bytes()
-  {
-    size_in_bytes = height * bytes_per_line;
-    return size_in_bytes;
-  }
+  // size_t set_number_of_pixels()
+  // {
+  //   number_of_pixels = width * height;
+  //   return number_of_pixels;
+  // }
+  // size_t set_bytes_per_line()
+  // {
+  //   bytes_per_line = width * pixel_format->byte_depth() * pixel_format->channels();
+  //   return bytes_per_line;
+  // }
+  // size_t set_size_in_bytes()
+  // {
+  //   size_in_bytes = height * bytes_per_line;
+  //   return size_in_bytes;
+  // }
 
-  /// @brief make it a shorter API call to get the pixel format
-  unsigned int get_format_fourcc()
-  {
-    return pixel_format->v4l2();
-  }
+  // /// @brief make it a shorter API call to get the pixel format
+  // unsigned int get_format_fourcc()
+  // {
+  //   return pixel_format->v4l2();
+  // }
 } image_t;
 
 class gPhoto2Cam
@@ -209,11 +209,8 @@ public:
   gPhoto2Cam();
   ~gPhoto2Cam();
 
-  Camera *m_camera;
-  GPContext *m_context;
-
   /// @brief Configure device, should be called before start
-  void configure(parameters_t & parameters, const io_method_t & io_method);
+  void configure(parameters_t & parameters, config_map_t & config_map);
 
   /// @brief Start the configured device
   void start();
@@ -233,7 +230,7 @@ public:
   /// in an image pointer to fill in
   void get_image(char * destination);
 
-  std::vector<capture_format_t> get_supported_formats();
+  // std::vector<capture_format_t> get_supported_formats();
 
   // enables/disable auto focus
   bool set_auto_focus(int value);
@@ -282,175 +279,178 @@ public:
     return m_device_name;
   }
 
-  inline std::shared_ptr<pixel_format_base> get_pixel_format()
-  {
-    return m_image.pixel_format;
-  }
+  // inline std::shared_ptr<pixel_format_base> get_pixel_format()
+  // {
+  //   return m_image.pixel_format;
+  // }
 
-  inline gphoto2_cam::utils::io_method_t get_io_method()
-  {
-    return m_io;
-  }
+  // inline gphoto2_cam::utils::io_method_t get_io_method()
+  // {
+  //   return m_io;
+  // }
 
-  inline int get_fd()
-  {
-    return m_fd;
-  }
+  // inline int get_fd()
+  // {
+  //   return m_fd;
+  // }
 
-  inline std::shared_ptr<gphoto2_cam::utils::buffer[]> get_buffers()
-  {
-    return m_buffers;
-  }
+  // inline std::shared_ptr<gphoto2_cam::utils::buffer[]> get_buffers()
+  // {
+  //   return m_buffers;
+  // }
 
-  inline unsigned int number_of_buffers()
-  {
-    return m_number_of_buffers;
-  }
+  // inline unsigned int number_of_buffers()
+  // {
+  //   return m_number_of_buffers;
+  // }
 
-  inline AVCodec * get_avcodec()
-  {
-    return m_avcodec;
-  }
+  // inline AVCodec * get_avcodec()
+  // {
+  //   return m_avcodec;
+  // }
 
-  inline AVDictionary * get_avoptions()
-  {
-    return m_avoptions;
-  }
+  // inline AVDictionary * get_avoptions()
+  // {
+  //   return m_avoptions;
+  // }
 
-  inline AVCodecContext * get_avcodec_context()
-  {
-    return m_avcodec_context;
-  }
+  // inline AVCodecContext * get_avcodec_context()
+  // {
+  //   return m_avcodec_context;
+  // }
 
-  inline AVFrame * get_avframe()
-  {
-    return m_avframe;
-  }
+  // inline AVFrame * get_avframe()
+  // {
+  //   return m_avframe;
+  // }
 
   inline bool is_capturing()
   {
     return m_is_capturing;
   }
 
-  inline time_t get_epoch_time_shift_us()
-  {
-    return m_epoch_time_shift_us;
-  }
+  // inline time_t get_epoch_time_shift_us()
+  // {
+  //   return m_epoch_time_shift_us;
+  // }
 
-  inline std::vector<capture_format_t> supported_formats()
-  {
-    if (m_supported_formats.size() == 0) {
-      this->get_supported_formats();
-    }
+  // inline std::vector<capture_format_t> supported_formats()
+  // {
+  //   if (m_supported_formats.size() == 0) {
+  //     this->get_supported_formats();
+  //   }
 
-    return m_supported_formats;
-  }
+  //   return m_supported_formats;
+  // }
 
   /// @brief Check if the given format is supported by this device
   /// If it is supported, set the m_pixel_format variable to it.
   /// @param format the format to check if it is supported
   /// @return bool true if the given format is supported, false otherwise
-  inline bool set_pixel_format(const formats::format_arguments_t & args)
-  {
-    bool result = false;
+  // inline bool set_pixel_format(const formats::format_arguments_t & args)
+  // {
+  //   bool result = false;
 
-    std::shared_ptr<pixel_format_base> found_driver_format = nullptr;
+  //   std::shared_ptr<pixel_format_base> found_driver_format = nullptr;
 
-    // First check if given format is supported by this driver
-    for (auto driver_fmt : driver_supported_formats(args)) {
-      if (driver_fmt->name() == args.name) {
-        found_driver_format = driver_fmt;
-      }
-    }
+  //   // First check if given format is supported by this driver
+  //   for (auto driver_fmt : driver_supported_formats(args)) {
+  //     if (driver_fmt->name() == args.name) {
+  //       found_driver_format = driver_fmt;
+  //     }
+  //   }
 
-    if (found_driver_format == nullptr) {
-      // List the supported formats of this driver for the user before throwing
-      std::cerr << "This driver supports the following formats:" << std::endl;
-      for (auto driver_fmt : driver_supported_formats(args)) {
-        std::cerr << "\t" << driver_fmt->name() << std::endl;
-      }
-      throw std::invalid_argument(
-              "Specified format `" + args.name + "` is unsupported by this ROS driver"
-      );
-    }
+  //   if (found_driver_format == nullptr) {
+  //     // List the supported formats of this driver for the user before throwing
+  //     std::cerr << "This driver supports the following formats:" << std::endl;
+  //     for (auto driver_fmt : driver_supported_formats(args)) {
+  //       std::cerr << "\t" << driver_fmt->name() << std::endl;
+  //     }
+  //     throw std::invalid_argument(
+  //             "Specified format `" + args.name + "` is unsupported by this ROS driver"
+  //     );
+  //   }
 
-    std::cout << "This device supports the following formats:" << std::endl;
-    for (auto fmt : this->supported_formats()) {
-      // Always list the devices supported formats for the user
-      std::cout << "\t" << fmt.format.description << " ";
-      std::cout << fmt.v4l2_fmt.width << " x " << fmt.v4l2_fmt.height << " (";
-      std::cout << fmt.v4l2_fmt.discrete.denominator / fmt.v4l2_fmt.discrete.numerator << " Hz)";
-      std::cout << std::endl;
+  //   std::cout << "This device supports the following formats:" << std::endl;
+  //   for (auto fmt : this->supported_formats()) {
+  //     // Always list the devices supported formats for the user
+  //     std::cout << "\t" << fmt.format.description << " ";
+  //     std::cout << fmt.v4l2_fmt.width << " x " << fmt.v4l2_fmt.height << " (";
+  //     std::cout << fmt.v4l2_fmt.discrete.denominator / fmt.v4l2_fmt.discrete.numerator << " Hz)";
+  //     std::cout << std::endl;
 
-      if (fmt.v4l2_fmt.pixel_format == found_driver_format->v4l2()) {
-        result = true;
-        m_image.pixel_format = found_driver_format;
-      }
-    }
+  //     if (fmt.v4l2_fmt.pixel_format == found_driver_format->v4l2()) {
+  //       result = true;
+  //       m_image.pixel_format = found_driver_format;
+  //     }
+  //   }
 
-    return result;
-  }
+  //   return result;
+  // }
 
   /// @brief Set pixel format from parameter list. Required to have logic within gPhoto2Cam object
   /// in case pixel format class requires additional information for conversion function
   /// (e.g. number of pixels, width, height, etc.)
   /// @param parameters list of parameters from which the pixel format is to be set
   /// @return pixel format structure corresponding to a given name
-  inline std::shared_ptr<pixel_format_base> set_pixel_format(const parameters_t & parameters)
-  {
-    // create format arguments structure
-    formats::format_arguments_t format_args({
-        parameters.pixel_format_name,
-        parameters.image_width,
-        parameters.image_height,
-        m_image.number_of_pixels,
-        parameters.av_device_format,
-      });
+  // inline std::shared_ptr<pixel_format_base> set_pixel_format(const parameters_t & parameters)
+  // {
+  //   // create format arguments structure
+  //   formats::format_arguments_t format_args({
+  //       parameters.pixel_format_name,
+  //       parameters.image_width,
+  //       parameters.image_height,
+  //       m_image.number_of_pixels,
+  //       parameters.av_device_format,
+  //     });
 
-    // Look for specified pixel format
-    if (!this->set_pixel_format(format_args)) {
-      throw std::invalid_argument(
-              "Specified format `" + parameters.pixel_format_name + "` is unsupported by the " +
-              "selected device `" + parameters.device_name + "`"
-      );
-    }
+  //   // Look for specified pixel format
+  //   if (!this->set_pixel_format(format_args)) {
+  //     throw std::invalid_argument(
+  //             "Specified format `" + parameters.pixel_format_name + "` is unsupported by the " +
+  //             "selected device `" + parameters.device_name + "`"
+  //     );
+  //   }
 
-    return m_image.pixel_format;
-  }
+  //   return m_image.pixel_format;
+  // }
 
 private:
-  void init_read();
-  void init_mmap();
-  void init_userp();
+  // void init_read();
+  // void init_mmap();
+  // void init_userp();
   void init_device();
 
   void open_device();
   void grab_image();
-  void read_frame();
-  void process_image(const char * src, char * & dest, const int & bytes_used);
+  // void read_frame();
+  // void process_image(const char * src, char * & dest, const int & bytes_used);
 
   void uninit_device();
   void close_device();
 
   std::string m_device_name;
-  gphoto2_cam::utils::io_method_t m_io;
-  int m_fd;
-  unsigned int m_number_of_buffers;
-  std::shared_ptr<gphoto2_cam::utils::buffer[]> m_buffers;
+  // gphoto2_cam::utils::io_method_t m_io;
+  // int m_fd;
+  // unsigned int m_number_of_buffers;
+  // std::shared_ptr<gphoto2_cam::utils::buffer[]> m_buffers;
+  Camera * m_camera;
+  GPContext * m_context;
+  CameraFile * m_file;
   image_t m_image;
 
-  AVFrame * m_avframe;
-  int m_avframe_size;
-  AVCodec * m_avcodec;
-  AVCodecID m_codec_id;
-  AVDictionary * m_avoptions;
-  AVCodecContext * m_avcodec_context;
+  // AVFrame * m_avframe;
+  // int m_avframe_size;
+  // AVCodec * m_avcodec;
+  // AVCodecID m_codec_id;
+  // AVDictionary * m_avoptions;
+  // AVCodecContext * m_avcodec_context;
 
-  int64_t m_buffer_time_us;
+  // int64_t m_buffer_time_us;
   bool m_is_capturing;
   int m_framerate;
-  const time_t m_epoch_time_shift_us;
-  std::vector<capture_format_t> m_supported_formats;
+  // const time_t m_epoch_time_shift_us;
+  // std::vector<capture_format_t> m_supported_formats;
 };
 
 }  // namespace gphoto2_cam

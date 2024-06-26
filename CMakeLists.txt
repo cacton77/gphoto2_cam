@@ -105,8 +105,9 @@ if(BUILD_TESTING)
   # ${PROJECT_NAME})
 endif()
 
-install(
-  PROGRAMS scripts/show_image.py
+install(PROGRAMS
+  scripts/show_image.py
+  scripts/monitor_node.py
   DESTINATION lib/${PROJECT_NAME})
 
 install(TARGETS

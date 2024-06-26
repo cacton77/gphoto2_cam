@@ -38,6 +38,7 @@
 #include "camera_info_manager/camera_info_manager.hpp"
 #include "image_transport/image_transport.hpp"
 #include "rclcpp/rclcpp.hpp"
+#include "rcl_interfaces/msg/parameter_descriptor.hpp"
 #include "sensor_msgs/msg/image.hpp"
 #include "sensor_msgs/msg/compressed_image.hpp"
 #include "std_srvs/srv/set_bool.hpp"
@@ -88,6 +89,7 @@ public:
   rclcpp::Publisher<sensor_msgs::msg::CameraInfo>::SharedPtr m_compressed_cam_info_publisher;
 
   parameters_t m_parameters;
+  config_map_t m_config_map;
 
   sensor_msgs::msg::CameraInfo::SharedPtr m_camera_info_msg;
   std::shared_ptr<camera_info_manager::CameraInfoManager> m_camera_info;

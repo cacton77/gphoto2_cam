@@ -38,7 +38,7 @@
 TEST(test_gphoto2_cam_lib, test_gphoto2_cam_class) {
   gphoto2_cam::gPhoto2Cam test_gphoto2_cam;
 
-  auto supported_fmts = test_gphoto2_cam.get_supported_formats();
+  // auto supported_fmts = test_gphoto2_cam.get_supported_formats();
 
   // TODO(flynneva): iterate over availble formats with test_gphoto2_cam obj
   for (auto fmt : supported_fmts) {

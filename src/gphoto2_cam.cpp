@@ -151,13 +151,14 @@ void getWidgetValue(CameraWidget *widget, config_map_t &config_map) {
             }
             break;
         }
+        case GP_WIDGET_MENU:
         case GP_WIDGET_RADIO: {
             char *value;
             if (gp_widget_get_value(widget, &value) == GP_OK) {
                 int id;
                 int readonly;
                 const char* label;
-                std::vector<const char*>  choices;
+                std::vector<std::string>  choices;
                 gp_widget_get_id(widget, &id);
                 gp_widget_get_readonly(widget, &readonly);
                 gp_widget_get_label(widget, &label);
@@ -174,44 +175,16 @@ void getWidgetValue(CameraWidget *widget, config_map_t &config_map) {
                     const char* choice;
                     if (gp_widget_get_choice(widget, i, &choice) == GP_OK) {
                         // std::cout << "\t\t" << "- " << choice << std::endl;
-                        choices.push_back(choice);
+                        choices.push_back(std::string(choice));
                     }
                 }
                 config_map[name] = char_config_t{
-                  name, label, id, readonly, value, choices 
-                };
-                // options.push_back({name, value});
-            }
-            break;
-        }
-        case GP_WIDGET_MENU: {
-            char *value;
-            if (gp_widget_get_value(widget, &value) == GP_OK) {
-                int id;
-                int readonly;
-                const char* label;
-                std::vector<const char*>  choices;
-                gp_widget_get_id(widget, &id);
-                gp_widget_get_readonly(widget, &readonly);
-                gp_widget_get_label(widget, &label);
-                // std::cout << name << ": " << std::endl;
-                // std::cout << "\t" << "Type: " << "MENU" << std::endl;
-                // std::cout << "\t" << "ID: " << id << std::endl;
-                // std::cout << "\t" << "Read only: " << readonly << std::endl;
-                // std::cout << "\t" << "Label: " << label << std::endl;
-                // std::cout << "\t" << "Value: " << value << std::endl;
-                // New code to print choices
-                int choiceCount = gp_widget_count_choices(widget);
-                // std::cout << "\t" << "Choices: " << std::endl;
-                for (int i = 0; i < choiceCount; ++i) {
-                    const char* choice;
-                    if (gp_widget_get_choice(widget, i, &choice) == GP_OK) {
-                        // std::cout << "\t\t" << "- " << choice << std::endl;
-                        choices.push_back(choice);
-                    }
-                }
-                config_map[name] = char_config_t{
-                  name, label, id, readonly, value, choices 
+                  name, 
+                  label, 
+                  id, 
+                  readonly, 
+                  std::string(value), 
+                  choices 
                 };
                 // options.push_back({name, value});
             }
@@ -252,40 +225,15 @@ void getWidgetValue(CameraWidget *widget, config_map_t &config_map) {
     }
 }
 
-config_map_t getAllConfigOptions(Camera *camera, GPContext *context) {
 
-    config_map_t config_map;
-
-    CameraWidget *rootWidget = nullptr;
-
-    gp_camera_get_config(camera, &rootWidget, context);
-
-    getWidgetValue(rootWidget, config_map);
-
-    gp_widget_free(rootWidget);
-
-    for (const auto& entry : config_map) {
-        const std::string& key = entry.first;
-
-        if (auto* char_config = std::get_if<char_config_t>(&config_map[key])) {
-            std::cout << "Key: " << key << ": " << char_config->id << std::endl;
-        } else if (auto* float_config = std::get_if<float_config_t>(&config_map[key])) {
-            std::cout << "Key: " << key << ": " << float_config->id << std::endl;
-        } else if (auto* int_config = std::get_if<int_config_t>(&config_map[key])) {
-            std::cout << "Key: " << key << ": " << int_config->id << std::endl;
-        }
-    }
-
-    return config_map;
-}
-
-
-gPhoto2Cam::gPhoto2Cam()
-  : m_device_name(), m_io(io_method_t::IO_METHOD_MMAP), m_fd(-1),
-  m_number_of_buffers(4), m_buffers(new gphoto2_cam::utils::buffer[m_number_of_buffers]), m_image(),
-  m_avframe(NULL), m_avcodec(NULL), m_avoptions(NULL),
-  m_avcodec_context(NULL), m_is_capturing(false), m_framerate(0),
-  m_epoch_time_shift_us(gphoto2_cam::utils::get_epoch_time_shift_us()), m_supported_formats()
+gPhoto2Cam::gPhoto2Cam():
+  // m_number_of_buffers(4), m_buffers(new gphoto2_cam::utils::buffer[m_number_of_buffers]), m_image(),
+  m_camera(), m_context(), m_file(),
+  m_image(),
+  // m_avframe(NULL), m_avcodec(NULL), m_avoptions(NULL),
+  // m_avcodec_context(NULL), 
+  m_is_capturing(false), m_framerate(0)
+  // m_epoch_time_shift_us(gphoto2_cam::utils::get_epoch_time_shift_us()), m_supported_formats()
 {}
 
 gPhoto2Cam::~gPhoto2Cam()
@@ -300,403 +248,329 @@ gPhoto2Cam::~gPhoto2Cam()
 /// @param src a pointer to a V4L2 source image
 /// @param dest a pointer to where the source image should be copied (if required)
 /// @param bytes_used number of bytes used by the src buffer
-void gPhoto2Cam::process_image(const char * src, char * & dest, const int & bytes_used)
-{
-  // TODO(flynneva): could we skip the copy here somehow?
-  // If no conversion required, just copy the image from V4L2 buffer
-  if (m_image.pixel_format->requires_conversion() == false) {
-    memcpy(dest, src, m_image.size_in_bytes);
-  } else {
-    m_image.pixel_format->convert(src, dest, bytes_used);
-  }
-}
+// void gPhoto2Cam::process_image(const char * src, char * & dest, const int & bytes_used)
+// {
+//   // TODO(flynneva): could we skip the copy here somehow?
+//   // If no conversion required, just copy the image from V4L2 buffer
+//   if (m_image.pixel_format->requires_conversion() == false) {
+//     memcpy(dest, src, m_image.size_in_bytes);
+//   } else {
+//     m_image.pixel_format->convert(src, dest, bytes_used);
+//   }
+// }
 
-void gPhoto2Cam::read_frame()
-{
-  struct v4l2_buffer buf;
-  unsigned int i;
-  int len;
+// void gPhoto2Cam::read_frame()
+// {
+//   struct v4l2_buffer buf;
+//   unsigned int i;
+//   int len;
 
-  switch (m_io) {
-    case io_method_t::IO_METHOD_READ:
-      len = read(m_fd, m_buffers[0].start, m_buffers[0].length);
-      if (len == -1) {
-        switch (errno) {
-          case EAGAIN:
-            return;
-          default:
-            throw std::runtime_error("Unable to read frame");
-        }
-      }
-      return process_image(m_buffers[0].start, m_image.data, len);
-    case io_method_t::IO_METHOD_MMAP:
-      CLEAR(buf);
-      buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-      m_image.v4l2_fmt.type = buf.type;
-      buf.memory = V4L2_MEMORY_MMAP;
+//   switch (m_io) {
+//     case io_method_t::IO_METHOD_READ:
+//       len = read(m_fd, m_buffers[0].start, m_buffers[0].length);
+//       if (len == -1) {
+//         switch (errno) {
+//           case EAGAIN:
+//             return;
+//           default:
+//             throw std::runtime_error("Unable to read frame");
+//         }
+//       }
+//       return process_image(m_buffers[0].start, m_image.data, len);
+//     case io_method_t::IO_METHOD_MMAP:
+//       CLEAR(buf);
+//       buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+//       m_image.v4l2_fmt.type = buf.type;
+//       buf.memory = V4L2_MEMORY_MMAP;
 
-      // Get current v4l2 pixel format
-      if (-1 == gphoto2_cam::utils::xioctl(m_fd, static_cast<int>(VIDIOC_G_FMT), &m_image.v4l2_fmt)) {
-        switch (errno) {
-          case EAGAIN:
-            return;
-          default:
-            throw std::runtime_error("Invalid v4l2 format");
-        }
-      }
-      /// Dequeue buffer with the new image
-      if (-1 == gphoto2_cam::utils::xioctl(m_fd, static_cast<int>(VIDIOC_DQBUF), &buf)) {
-        switch (errno) {
-          case EAGAIN:
-            return;
-          default:
-            throw std::runtime_error("Unable to retrieve frame with mmap");
-        }
-      }
+//       // Get current v4l2 pixel format
+//       if (-1 == gphoto2_cam::utils::xioctl(m_fd, static_cast<int>(VIDIOC_G_FMT), &m_image.v4l2_fmt)) {
+//         switch (errno) {
+//           case EAGAIN:
+//             return;
+//           default:
+//             throw std::runtime_error("Invalid v4l2 format");
+//         }
+//       }
+//       /// Dequeue buffer with the new image
+//       if (-1 == gphoto2_cam::utils::xioctl(m_fd, static_cast<int>(VIDIOC_DQBUF), &buf)) {
+//         switch (errno) {
+//           case EAGAIN:
+//             return;
+//           default:
+//             throw std::runtime_error("Unable to retrieve frame with mmap");
+//         }
+//       }
 
-      // Get timestamp from V4L2 image buffer
-      m_image.stamp = gphoto2_cam::utils::calc_img_timestamp(buf.timestamp, m_epoch_time_shift_us);
+//       // Get timestamp from V4L2 image buffer
+//       m_image.stamp = gphoto2_cam::utils::calc_img_timestamp(buf.timestamp, m_epoch_time_shift_us);
 
-      assert(buf.index < m_number_of_buffers);
-      process_image(m_buffers[buf.index].start, m_image.data, buf.bytesused);
+//       assert(buf.index < m_number_of_buffers);
+//       process_image(m_buffers[buf.index].start, m_image.data, buf.bytesused);
 
-      /// Requeue buffer so it can be reused
-      if (-1 == gphoto2_cam::utils::xioctl(m_fd, static_cast<int>(VIDIOC_QBUF), &buf)) {
-        throw std::runtime_error("Unable to exchange buffer with the driver");
-      }
-      return;
-    case io_method_t::IO_METHOD_USERPTR:
-      CLEAR(buf);
+//       /// Requeue buffer so it can be reused
+//       if (-1 == gphoto2_cam::utils::xioctl(m_fd, static_cast<int>(VIDIOC_QBUF), &buf)) {
+//         throw std::runtime_error("Unable to exchange buffer with the driver");
+//       }
+//       return;
+//     case io_method_t::IO_METHOD_USERPTR:
+//       CLEAR(buf);
 
-      buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-      buf.memory = V4L2_MEMORY_USERPTR;
+//       buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+//       buf.memory = V4L2_MEMORY_USERPTR;
 
-      if (-1 == gphoto2_cam::utils::xioctl(m_fd, static_cast<int>(VIDIOC_DQBUF), &buf)) {
-        switch (errno) {
-          case EAGAIN:
-            return;
-          default:
-            throw std::runtime_error("Unable to exchange buffer with driver");
-        }
-      }
+//       if (-1 == gphoto2_cam::utils::xioctl(m_fd, static_cast<int>(VIDIOC_DQBUF), &buf)) {
+//         switch (errno) {
+//           case EAGAIN:
+//             return;
+//           default:
+//             throw std::runtime_error("Unable to exchange buffer with driver");
+//         }
+//       }
 
-      // Get timestamp from V4L2 image buffer
-      m_image.stamp = gphoto2_cam::utils::calc_img_timestamp(buf.timestamp, m_epoch_time_shift_us);
+//       // Get timestamp from V4L2 image buffer
+      // m_image.stamp = gphoto2_cam::utils::calc_img_timestamp(buf.timestamp, m_epoch_time_shift_us);
 
-      for (i = 0; i < m_number_of_buffers; ++i) {
-        if (buf.m.userptr == reinterpret_cast<uint64_t>(m_buffers[i].start) && \
-          buf.length == m_buffers[i].length)
-        {
-          return;
-        }
-      }
+//       for (i = 0; i < m_number_of_buffers; ++i) {
+//         if (buf.m.userptr == reinterpret_cast<uint64_t>(m_buffers[i].start) && 
+//           buf.length == m_buffers[i].length)
+//         {
+//           return;
+//         }
+//       }
 
-      assert(i < m_number_of_buffers);
-      process_image(reinterpret_cast<const char *>(buf.m.userptr), m_image.data, buf.bytesused);
-      if (-1 == gphoto2_cam::utils::xioctl(m_fd, static_cast<int>(VIDIOC_QBUF), &buf)) {
-        throw std::runtime_error("Unable to exchange buffer with driver");
-      }
-      return;
-    case io_method_t::IO_METHOD_UNKNOWN:
-      throw std::invalid_argument("IO method unknown");
-  }
-}
+//       assert(i < m_number_of_buffers);
+//       process_image(reinterpret_cast<const char *>(buf.m.userptr), m_image.data, buf.bytesused);
+//       if (-1 == gphoto2_cam::utils::xioctl(m_fd, static_cast<int>(VIDIOC_QBUF), &buf)) {
+//         throw std::runtime_error("Unable to exchange buffer with driver");
+//       }
+//       return;
+//     case io_method_t::IO_METHOD_UNKNOWN:
+//       throw std::invalid_argument("IO method unknown");
+//   }
+// }
 
 void gPhoto2Cam::stop_capturing()
 {
-  if (!m_is_capturing) {return;}
-
-  m_is_capturing = false;
-  enum v4l2_buf_type type;
-
-  switch (m_io) {
-    case io_method_t::IO_METHOD_READ:
-      /* Nothing to do. */
-      return;
-    case io_method_t::IO_METHOD_MMAP:
-    case io_method_t::IO_METHOD_USERPTR:
-      type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-      if (-1 == gphoto2_cam::utils::xioctl(m_fd, VIDIOC_STREAMOFF, &type)) {
-        // Set capturing variable to true again, since stream was not stopped successfully
-        m_is_capturing = true;
-        throw std::runtime_error("Unable to stop capturing stream");
-      }
-      return;
-    case io_method_t::IO_METHOD_UNKNOWN:
-      throw std::invalid_argument("IO method unknown");
-  }
+  
 }
 
 void gPhoto2Cam::start_capturing()
 {
   if (m_is_capturing) {return;}
 
-  unsigned int i;
-  enum v4l2_buf_type type;
-
-  switch (m_io) {
-    case io_method_t::IO_METHOD_READ:
-      /* Nothing to do. */
-      break;
-    case io_method_t::IO_METHOD_MMAP:
-      // Queue the buffers
-      for (i = 0; i < m_number_of_buffers; ++i) {
-        struct v4l2_buffer buf;
-        CLEAR(buf);
-
-        buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-        buf.memory = V4L2_MEMORY_MMAP;
-        buf.index = i;
-
-        if (-1 == gphoto2_cam::utils::xioctl(m_fd, static_cast<int>(VIDIOC_QBUF), &buf)) {
-          throw std::runtime_error("Unable to queue image buffer");
-        }
-      }
-
-      // Start the stream
-      type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-      if (-1 == gphoto2_cam::utils::xioctl(m_fd, VIDIOC_STREAMON, &type)) {
-        throw std::runtime_error("Unable to start stream");
-      }
-      break;
-    case io_method_t::IO_METHOD_USERPTR:
-      for (i = 0; i < m_number_of_buffers; ++i) {
-        struct v4l2_buffer buf;
-
-        CLEAR(buf);
-
-        buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-        buf.memory = V4L2_MEMORY_USERPTR;
-        buf.index = i;
-        buf.m.userptr = reinterpret_cast<uint64_t>(m_buffers[i].start);
-        buf.length = m_buffers[i].length;
-
-        if (-1 == gphoto2_cam::utils::xioctl(m_fd, static_cast<int>(VIDIOC_QBUF), &buf)) {
-          throw std::runtime_error("Unable to configure stream");
-        }
-      }
-
-      type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-
-      if (-1 == gphoto2_cam::utils::xioctl(m_fd, VIDIOC_STREAMON, &type)) {
-        throw std::runtime_error("Unable to start stream");
-      }
-      break;
-    case io_method_t::IO_METHOD_UNKNOWN:
-      throw std::invalid_argument("IO method unknown");
-  }
   m_is_capturing = true;
 }
 
 void gPhoto2Cam::uninit_device()
 {
-  m_buffers.reset();
+  // m_buffers.reset();
 }
 
-void gPhoto2Cam::init_read()
-{
-  if (!m_buffers) {
-    throw std::overflow_error("Out of memory");
-  }
+// void gPhoto2Cam::init_read()
+// {
+//   if (!m_buffers) {
+//     throw std::overflow_error("Out of memory");
+//   }
 
-  m_buffers[0].length = m_image.size_in_bytes;
+//   m_buffers[0].length = m_image.size_in_bytes;
 
-  if (!m_buffers[0].start) {
-    throw std::overflow_error("Out of memory");
-  }
-}
+//   if (!m_buffers[0].start) {
+//     throw std::overflow_error("Out of memory");
+//   }
+// }
 
-void gPhoto2Cam::init_mmap()
-{
-  struct v4l2_requestbuffers req;
+// void gPhoto2Cam::init_mmap()
+// {
+//   struct v4l2_requestbuffers req;
 
-  CLEAR(req);
+//   CLEAR(req);
 
-  req.count = m_number_of_buffers;
-  req.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-  req.memory = V4L2_MEMORY_MMAP;
+//   req.count = m_number_of_buffers;
+//   req.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+//   req.memory = V4L2_MEMORY_MMAP;
 
-  if (-1 == gphoto2_cam::utils::xioctl(m_fd, static_cast<int>(VIDIOC_REQBUFS), &req)) {
-    if (EINVAL == errno) {
-      throw std::runtime_error("Device does not support memory mapping");
-    } else {
-      throw std::runtime_error("Unable to initialize memory mapping");
-    }
-  }
+//   if (-1 == gphoto2_cam::utils::xioctl(m_fd, static_cast<int>(VIDIOC_REQBUFS), &req)) {
+//     if (EINVAL == errno) {
+//       throw std::runtime_error("Device does not support memory mapping");
+//     } else {
+//       throw std::runtime_error("Unable to initialize memory mapping");
+//     }
+//   }
 
-  if (req.count < m_number_of_buffers) {
-    throw std::overflow_error("Insufficient buffer memory on device");
-  }
+//   if (req.count < m_number_of_buffers) {
+//     throw std::overflow_error("Insufficient buffer memory on device");
+//   }
 
-  if (!m_buffers) {
-    throw std::overflow_error("Out of memory");
-  }
+//   if (!m_buffers) {
+//     throw std::overflow_error("Out of memory");
+//   }
 
-  for (uint32_t current_buffer = 0; current_buffer < req.count; ++current_buffer) {
-    struct v4l2_buffer buf;
+//   for (uint32_t current_buffer = 0; current_buffer < req.count; ++current_buffer) {
+//     struct v4l2_buffer buf;
 
-    CLEAR(buf);
+//     CLEAR(buf);
 
-    buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-    buf.memory = V4L2_MEMORY_MMAP;
-    buf.index = current_buffer;
+//     buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+//     buf.memory = V4L2_MEMORY_MMAP;
+//     buf.index = current_buffer;
 
-    if (-1 == gphoto2_cam::utils::xioctl(m_fd, static_cast<int>(VIDIOC_QUERYBUF), &buf)) {
-      throw std::runtime_error("Unable to query status of buffer");
-    }
+//     if (-1 == gphoto2_cam::utils::xioctl(m_fd, static_cast<int>(VIDIOC_QUERYBUF), &buf)) {
+//       throw std::runtime_error("Unable to query status of buffer");
+//     }
 
-    m_buffers[current_buffer].length = buf.length;
-    m_buffers[current_buffer].start =
-      reinterpret_cast<char *>(mmap(
-        NULL /* start anywhere */, buf.length, PROT_READ | PROT_WRITE /* required */,
-        MAP_SHARED /* recommended */, m_fd, buf.m.offset));
+//     m_buffers[current_buffer].length = buf.length;
+//     m_buffers[current_buffer].start =
+//       reinterpret_cast<char *>(mmap(
+//         NULL /* start anywhere */, buf.length, PROT_READ | PROT_WRITE /* required */,
+//         MAP_SHARED /* recommended */, m_fd, buf.m.offset));
 
-    if (MAP_FAILED == m_buffers[current_buffer].start) {
-      throw std::runtime_error("Unable to allocate memory for image buffers");
-    }
-  }
-}
+//     if (MAP_FAILED == m_buffers[current_buffer].start) {
+//       throw std::runtime_error("Unable to allocate memory for image buffers");
+//     }
+//   }
+// }
 
-void gPhoto2Cam::init_userp()
-{
-  struct v4l2_requestbuffers req;
-  unsigned int page_size;
+// void gPhoto2Cam::init_userp()
+// {
+//   struct v4l2_requestbuffers req;
+//   unsigned int page_size;
 
-  page_size = getpagesize();
-  auto buffer_size = (m_image.size_in_bytes + page_size - 1) & ~(page_size - 1);
+//   page_size = getpagesize();
+//   auto buffer_size = (m_image.size_in_bytes + page_size - 1) & ~(page_size - 1);
 
-  CLEAR(req);
+//   CLEAR(req);
 
-  req.count = m_number_of_buffers;
-  req.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-  req.memory = V4L2_MEMORY_USERPTR;
+//   req.count = m_number_of_buffers;
+//   req.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+//   req.memory = V4L2_MEMORY_USERPTR;
 
-  if (-1 == gphoto2_cam::utils::xioctl(m_fd, VIDIOC_REQBUFS, &req)) {
-    if (EINVAL == errno) {
-      throw std::invalid_argument("Device does not support user pointer i/o");
-    } else {
-      throw std::invalid_argument("Unable to initialize memory mapping");
-    }
-  }
+//   if (-1 == gphoto2_cam::utils::xioctl(m_fd, VIDIOC_REQBUFS, &req)) {
+//     if (EINVAL == errno) {
+//       throw std::invalid_argument("Device does not support user pointer i/o");
+//     } else {
+//       throw std::invalid_argument("Unable to initialize memory mapping");
+//     }
+  // }
 
-  if (!m_buffers) {
-    throw std::overflow_error("Out of memory");
-  }
+//   if (!m_buffers) {
+//     throw std::overflow_error("Out of memory");
+//   }
 
-  for (uint32_t current_buffer = 0; current_buffer < req.count; ++current_buffer) {
-    m_buffers[current_buffer].length = buffer_size;
-    m_buffers[current_buffer].start =
-      reinterpret_cast<char *>(memalign(/* boundary */ page_size, buffer_size));
+//   for (uint32_t current_buffer = 0; current_buffer < req.count; ++current_buffer) {
+//     m_buffers[current_buffer].length = buffer_size;
+//     m_buffers[current_buffer].start =
+//       reinterpret_cast<char *>(memalign(/* boundary */ page_size, buffer_size));
 
-    if (!m_buffers[current_buffer].start) {
-      throw std::overflow_error("Out of memory");
-    }
-  }
-}
+//     if (!m_buffers[current_buffer].start) {
+//       throw std::overflow_error("Out of memory");
+//     }
+//   }
+// }
 
 void gPhoto2Cam::init_device()
 {
-  struct v4l2_capability cap;
-  struct v4l2_cropcap cropcap;
-  struct v4l2_crop crop;
+  // struct v4l2_capability cap;
+  // struct v4l2_cropcap cropcap;
+  // struct v4l2_crop crop;
 
-  if (-1 == gphoto2_cam::utils::xioctl(m_fd, static_cast<int>(VIDIOC_QUERYCAP), &cap)) {
-    if (EINVAL == errno) {
-      throw std::invalid_argument("Device is not a V4L2 device");
-    } else {
-      throw std::invalid_argument("Unable to query device capabilities");
-    }
-  }
+  // if (-1 == gphoto2_cam::utils::xioctl(m_fd, static_cast<int>(VIDIOC_QUERYCAP), &cap)) {
+  //   if (EINVAL == errno) {
+  //     throw std::invalid_argument("Device is not a V4L2 device");
+  //   } else {
+  //     throw std::invalid_argument("Unable to query device capabilities");
+  //   }
+  // }
 
-  if (!(cap.capabilities & V4L2_CAP_VIDEO_CAPTURE)) {
-    throw std::invalid_argument("Device is not a video capture device");
-  }
+  // if (!(cap.capabilities & V4L2_CAP_VIDEO_CAPTURE)) {
+  //   throw std::invalid_argument("Device is not a video capture device");
+  // }
 
-  switch (m_io) {
-    case io_method_t::IO_METHOD_READ:
-      if (!(cap.capabilities & V4L2_CAP_READWRITE)) {
-        throw std::invalid_argument("Device does not support read i/o");
-      }
-      break;
-    case io_method_t::IO_METHOD_MMAP:
-    case io_method_t::IO_METHOD_USERPTR:
-      if (!(cap.capabilities & V4L2_CAP_STREAMING)) {
-        throw std::invalid_argument("Device does not support streaming i/o");
-      }
-      break;
-    case io_method_t::IO_METHOD_UNKNOWN:
-      throw std::invalid_argument("Unsupported IO method specified");
-  }
+  // switch (m_io) {
+  //   case io_method_t::IO_METHOD_READ:
+  //     if (!(cap.capabilities & V4L2_CAP_READWRITE)) {
+  //       throw std::invalid_argument("Device does not support read i/o");
+  //     }
+  //     break;
+  //   case io_method_t::IO_METHOD_MMAP:
+  //   case io_method_t::IO_METHOD_USERPTR:
+  //     if (!(cap.capabilities & V4L2_CAP_STREAMING)) {
+  //       throw std::invalid_argument("Device does not support streaming i/o");
+  //     }
+  //     break;
+  //   case io_method_t::IO_METHOD_UNKNOWN:
+  //     throw std::invalid_argument("Unsupported IO method specified");
+  // }
 
   /* Select video input, video standard and tune here. */
 
-  CLEAR(cropcap);
+  // CLEAR(cropcap);
 
-  cropcap.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+  // cropcap.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 
-  if (0 == gphoto2_cam::utils::xioctl(m_fd, static_cast<int>(VIDIOC_CROPCAP), &cropcap)) {
-    crop.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-    crop.c = cropcap.defrect; /* reset to default */
+  // if (0 == gphoto2_cam::utils::xioctl(m_fd, static_cast<int>(VIDIOC_CROPCAP), &cropcap)) {
+  //   crop.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+  //   crop.c = cropcap.defrect; /* reset to default */
 
-    if (-1 == gphoto2_cam::utils::xioctl(m_fd, VIDIOC_S_CROP, &crop)) {
-      switch (errno) {
-        case EINVAL:
-          /* Cropping not supported. */
-          break;
-        default:
-          /* Errors ignored. */
-          break;
-      }
-    }
-  } else {
-    /* Errors ignored. */
-  }
+  //   if (-1 == gphoto2_cam::utils::xioctl(m_fd, VIDIOC_S_CROP, &crop)) {
+  //     switch (errno) {
+  //       case EINVAL:
+  //         /* Cropping not supported. */
+  //         break;
+  //       default:
+  //         /* Errors ignored. */
+  //         break;
+  //     }
+  //   }
+  // } else {
+  //   /* Errors ignored. */
+  // }
 
-  m_image.v4l2_fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-  m_image.v4l2_fmt.fmt.pix.width = m_image.width;
-  m_image.v4l2_fmt.fmt.pix.height = m_image.height;
-  m_image.v4l2_fmt.fmt.pix.pixelformat = m_image.pixel_format->v4l2();
-  m_image.v4l2_fmt.fmt.pix.field = V4L2_FIELD_ANY;
+  // m_image.v4l2_fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+  // m_image.v4l2_fmt.fmt.pix.width = m_image.width;
+  // m_image.v4l2_fmt.fmt.pix.height = m_image.height;
+  // m_image.v4l2_fmt.fmt.pix.pixelformat = m_image.pixel_format->v4l2();
+  // m_image.v4l2_fmt.fmt.pix.field = V4L2_FIELD_ANY;
 
-  // Set v4l2 capture format
-  // Note VIDIOC_S_FMT may change width and height
-  if (-1 == gphoto2_cam::utils::xioctl(m_fd, static_cast<int>(VIDIOC_S_FMT), &m_image.v4l2_fmt)) {
-    throw strerror(errno);
-  }
+  // // Set v4l2 capture format
+  // // Note VIDIOC_S_FMT may change width and height
+  // if (-1 == gphoto2_cam::utils::xioctl(m_fd, static_cast<int>(VIDIOC_S_FMT), &m_image.v4l2_fmt)) {
+  //   throw strerror(errno);
+  // }
 
-  struct v4l2_streamparm stream_params;
-  memset(&stream_params, 0, sizeof(stream_params));
-  stream_params.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-  if (gphoto2_cam::utils::xioctl(m_fd, static_cast<int>(VIDIOC_G_PARM), &stream_params) < 0) {
-    throw strerror(errno);
-  }
+  // struct v4l2_streamparm stream_params;
+  // memset(&stream_params, 0, sizeof(stream_params));
+  // stream_params.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+  // if (gphoto2_cam::utils::xioctl(m_fd, static_cast<int>(VIDIOC_G_PARM), &stream_params) < 0) {
+  //   throw strerror(errno);
+  // }
 
-  if (!stream_params.parm.capture.capability && V4L2_CAP_TIMEPERFRAME) {
-    throw "V4L2_CAP_TIMEPERFRAME not supported";
-  }
+  // if (!stream_params.parm.capture.capability && V4L2_CAP_TIMEPERFRAME) {
+  //   throw "V4L2_CAP_TIMEPERFRAME not supported";
+  // }
 
-  // TODO(lucasw) need to get list of valid numerator/denominator pairs
-  // and match closest to what user put in.
-  stream_params.parm.capture.timeperframe.numerator = 1;
-  stream_params.parm.capture.timeperframe.denominator = m_framerate;
-  if (gphoto2_cam::utils::xioctl(m_fd, static_cast<int>(VIDIOC_S_PARM), &stream_params) < 0) {
-    throw std::invalid_argument("Couldn't set camera framerate");
-  }
+  // // TODO(lucasw) need to get list of valid numerator/denominator pairs
+  // // and match closest to what user put in.
+  // stream_params.parm.capture.timeperframe.numerator = 1;
+  // stream_params.parm.capture.timeperframe.denominator = m_framerate;
+  // if (gphoto2_cam::utils::xioctl(m_fd, static_cast<int>(VIDIOC_S_PARM), &stream_params) < 0) {
+  //   throw std::invalid_argument("Couldn't set camera framerate");
+  // }
 
-  switch (m_io) {
-    case io_method_t::IO_METHOD_READ:
-      init_read();
-      break;
-    case io_method_t::IO_METHOD_MMAP:
-      init_mmap();
-      break;
-    case io_method_t::IO_METHOD_USERPTR:
-      init_userp();
-      break;
-    case io_method_t::IO_METHOD_UNKNOWN:
-      // TODO(flynneva): log something
-      break;
-  }
+  // switch (m_io) {
+  //   case io_method_t::IO_METHOD_READ:
+  //     init_read();
+  //     break;
+  //   case io_method_t::IO_METHOD_MMAP:
+  //     init_mmap();
+  //     break;
+  //   case io_method_t::IO_METHOD_USERPTR:
+  //     init_userp();
+  //     break;
+  //   case io_method_t::IO_METHOD_UNKNOWN:
+  //     // TODO(flynneva): log something
+  //     break;
+  // }
 }
 
 void gPhoto2Cam::close_device()
@@ -719,13 +593,13 @@ void gPhoto2Cam::close_device()
   m_context = NULL;
 
   // Device is already closed
-  if (m_fd == -1) {return;}
+  // if (m_fd == -1) {return;}
 
-  if (-1 == close(m_fd)) {
-    throw strerror(errno);
-  }
+  // if (-1 == close(m_fd)) {
+  //   throw strerror(errno);
+  // }
 
-  m_fd = -1;
+  // m_fd = -1;
 }
 
 void gPhoto2Cam::open_device()
@@ -753,32 +627,46 @@ void gPhoto2Cam::open_device()
   m_camera = camera;
   m_context = context;
 
-  // List all config
-  auto options = getAllConfigOptions(camera, context);
-
-  gp_camera_unref(camera);
-  gp_context_unref(context);
+  // gp_camera_unref(camera);
+  // gp_context_unref(context);
 
 }
 
 void gPhoto2Cam::configure(
-  parameters_t & parameters, const io_method_t & io_method)
+  parameters_t & parameters,
+  config_map_t & config_map)
 {
   m_device_name = parameters.device_name;
-  m_io = io_method;
 
   // Open device file descriptor before anything else
+  std::cout << "Opening device..." << std::endl;
   open_device();
+  std::cout << "Device open." << std::endl;
 
   m_image.width = static_cast<int>(parameters.image_width);
   m_image.height = static_cast<int>(parameters.image_height);
-  m_image.set_number_of_pixels();
+  // m_image.set_number_of_pixels();
 
   // Do this before calling set_bytes_per_line and set_size_in_bytes
-  m_image.pixel_format = set_pixel_format(parameters);
-  m_image.set_bytes_per_line();
-  m_image.set_size_in_bytes();
-  m_framerate = parameters.framerate;
+  // m_image.pixel_format = set_pixel_format(parameters);
+  // m_image.set_bytes_per_line();
+  // m_image.set_size_in_bytes();
+  // m_framerate = parameters.framerate;
+
+  // Get all config
+  CameraWidget *rootWidget = nullptr;
+
+  std::cout << "Getting config..." << std::endl;
+  int result;
+  result = gp_camera_get_config(m_camera, &rootWidget, m_context);
+  if (result != GP_OK) {
+    std::cerr << "Failed to get camera config: " << gp_result_as_string(result) << std::endl;
+  }
+  std::cout << "Config loaded." << std::endl;
+
+  getWidgetValue(rootWidget, config_map);
+
+  gp_widget_free(rootWidget);
 
   init_device();
 }
@@ -820,119 +708,154 @@ void gPhoto2Cam::get_image(char * destination)
   grab_image();
 }
 
-std::vector<capture_format_t> gPhoto2Cam::get_supported_formats()
-{
-  m_supported_formats.clear();
-  struct v4l2_fmtdesc * current_format = new v4l2_fmtdesc();
-  struct v4l2_frmsizeenum * current_size = new v4l2_frmsizeenum();
-  struct v4l2_frmivalenum * current_interval = new v4l2_frmivalenum();
+// std::vector<capture_format_t> gPhoto2Cam::get_supported_formats()
+// {
+//   m_supported_formats.clear();
+//   struct v4l2_fmtdesc * current_format = new v4l2_fmtdesc();
+//   struct v4l2_frmsizeenum * current_size = new v4l2_frmsizeenum();
+//   struct v4l2_frmivalenum * current_interval = new v4l2_frmivalenum();
 
-  current_format->type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-  current_format->index = 0;
-  for (current_format->index = 0;
-    gphoto2_cam::utils::xioctl(
-      m_fd, VIDIOC_ENUM_FMT, current_format) == 0;
-    ++current_format->index)
-  {
-    current_size->index = 0;
-    current_size->pixel_format = current_format->pixelformat;
+//   current_format->type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+//   current_format->index = 0;
+//   for (current_format->index = 0;
+//     gphoto2_cam::utils::xioctl(
+//       m_fd, VIDIOC_ENUM_FMT, current_format) == 0;
+//     ++current_format->index)
+//   {
+//     current_size->index = 0;
+//     current_size->pixel_format = current_format->pixelformat;
 
-    for (current_size->index = 0;
-      gphoto2_cam::utils::xioctl(
-        m_fd, VIDIOC_ENUM_FRAMESIZES, current_size) == 0;
-      ++current_size->index)
-    {
-      current_interval->index = 0;
-      current_interval->pixel_format = current_size->pixel_format;
-      current_interval->width = current_size->discrete.width;
-      current_interval->height = current_size->discrete.height;
-      for (current_interval->index = 0;
-        gphoto2_cam::utils::xioctl(
-          m_fd, VIDIOC_ENUM_FRAMEINTERVALS, current_interval) == 0;
-        ++current_interval->index)
-      {
-        if (current_interval->type == V4L2_FRMIVAL_TYPE_DISCRETE) {
-          capture_format_t capture_format;
-          capture_format.format = *current_format;
-          capture_format.v4l2_fmt = *current_interval;
-          m_supported_formats.push_back(capture_format);
-        }
-      }  // interval loop
-    }  // size loop
-  }  // fmt loop
+//     for (current_size->index = 0;
+//       gphoto2_cam::utils::xioctl(
+//         m_fd, VIDIOC_ENUM_FRAMESIZES, current_size) == 0;
+//       ++current_size->index)
+//     {
+//       current_interval->index = 0;
+//       current_interval->pixel_format = current_size->pixel_format;
+//       current_interval->width = current_size->discrete.width;
+//       current_interval->height = current_size->discrete.height;
+//       for (current_interval->index = 0;
+//         gphoto2_cam::utils::xioctl(
+//           m_fd, VIDIOC_ENUM_FRAMEINTERVALS, current_interval) == 0;
+//         ++current_interval->index)
+//       {
+//         if (current_interval->type == V4L2_FRMIVAL_TYPE_DISCRETE) {
+//           capture_format_t capture_format;
+//           capture_format.format = *current_format;
+//           capture_format.v4l2_fmt = *current_interval;
+//           m_supported_formats.push_back(capture_format);
+//         }
+//       }  // interval loop
+//     }  // size loop
+//   }  // fmt loop
 
-  delete (current_format);
-  delete (current_size);
-  delete (current_interval);
+//   delete (current_format);
+//   delete (current_size);
+//   delete (current_interval);
 
-  return m_supported_formats;
-}
+//   return m_supported_formats;
+// }
 
 void gPhoto2Cam::grab_image()
 {
-  fd_set fds;
-  struct timeval tv;
-  int r;
+  int ret;
+  const char *data;
+  unsigned long int size;
 
-  FD_ZERO(&fds);
-  FD_SET(m_fd, &fds);
+  // Step 1: Ensure the camera is initialized and context is set up
+  // Assuming m_camera and m_context are already initialized
 
-  /* Timeout. */
-  tv.tv_sec = 5;
-  tv.tv_usec = 0;
-
-  r = select(m_fd + 1, &fds, NULL, NULL, &tv);
-
-  if (-1 == r) {
-    if (EINTR == errno) {
-      // interruped (e.g. maybe Ctrl + c) so don't throw anything
+  // Step 2: Capture preview
+  ret = gp_file_new(&m_file);
+  if (ret < GP_OK) {
+      std::cerr << "Failed to create file object for preview image." << std::endl;
       return;
-    }
-
-    std::cerr << "Something went wrong, exiting..." << errno << std::endl;
-    throw errno;
   }
 
-  if (0 == r) {
-    std::cerr << "Select timeout, exiting..." << std::endl;
-    throw "select timeout";
+  ret = gp_camera_capture_preview(m_camera, m_file, m_context);
+  if (ret < GP_OK) {
+      std::cerr << "Failed to capture preview image." << std::endl;
+      gp_file_free(m_file);
+      return;
   }
 
-  read_frame();
+  // Step 3: Extract image data
+  ret = gp_file_get_data_and_size(m_file, &data, &size);
+  if (ret < GP_OK) {
+      std::cerr << "Failed to get image data from file." << std::endl;
+      gp_file_free(m_file);
+      return;
+  }
+
+  // Step 4: Assign data to m_image
+  // Assuming m_image.data is a suitable container for the image data, like std::vector<char>
+  // m_image.data.assign(data, data + size);
+
+  // Clean up
+  gp_file_free(m_file);
+  // fd_set fds;
+  // struct timeval tv;
+  // int r;
+
+  // FD_ZERO(&fds);
+  // FD_SET(m_fd, &fds);
+
+  // /* Timeout. */
+  // tv.tv_sec = 5;
+  // tv.tv_usec = 0;
+
+  // r = select(m_fd + 1, &fds, NULL, NULL, &tv);
+
+  // if (-1 == r) {
+  //   if (EINTR == errno) {
+  //     // interruped (e.g. maybe Ctrl + c) so don't throw anything
+  //     return;
+  //   }
+
+  //   std::cerr << "Something went wrong, exiting..." << errno << std::endl;
+  //   throw errno;
+  // }
+
+  // if (0 == r) {
+  //   std::cerr << "Select timeout, exiting..." << std::endl;
+  //   throw "select timeout";
+  // }
+
+  // read_frame();
 }
 
 // enables/disables auto focus
-bool gPhoto2Cam::set_auto_focus(int value)
-{
-  struct v4l2_queryctrl queryctrl;
-  struct v4l2_ext_control control;
+// bool gPhoto2Cam::set_auto_focus(int value)
+// {
+//   struct v4l2_queryctrl queryctrl;
+//   struct v4l2_ext_control control;
 
-  memset(&queryctrl, 0, sizeof(queryctrl));
-  queryctrl.id = V4L2_CID_FOCUS_AUTO;
+//   memset(&queryctrl, 0, sizeof(queryctrl));
+//   queryctrl.id = V4L2_CID_FOCUS_AUTO;
 
-  if (-1 == gphoto2_cam::utils::xioctl(m_fd, static_cast<int>(VIDIOC_QUERYCTRL), &queryctrl)) {
-    if (errno != EINVAL) {
-      std::cerr << "VIDIOC_QUERYCTRL" << std::endl;
-      return false;
-    } else {
-      std::cerr << "V4L2_CID_FOCUS_AUTO is not supported" << std::endl;
-      return false;
-    }
-  } else if (queryctrl.flags & V4L2_CTRL_FLAG_DISABLED) {
-    std::cerr << "V4L2_CID_FOCUS_AUTO is not supported" << std::endl;
-    return false;
-  } else {
-    memset(&control, 0, sizeof(control));
-    control.id = V4L2_CID_FOCUS_AUTO;
-    control.value = value;
+//   if (-1 == gphoto2_cam::utils::xioctl(m_fd, static_cast<int>(VIDIOC_QUERYCTRL), &queryctrl)) {
+//     if (errno != EINVAL) {
+//       std::cerr << "VIDIOC_QUERYCTRL" << std::endl;
+//       return false;
+//     } else {
+//       std::cerr << "V4L2_CID_FOCUS_AUTO is not supported" << std::endl;
+//       return false;
+//     }
+//   } else if (queryctrl.flags & V4L2_CTRL_FLAG_DISABLED) {
+//     std::cerr << "V4L2_CID_FOCUS_AUTO is not supported" << std::endl;
+//     return false;
+//   } else {
+//     memset(&control, 0, sizeof(control));
+//     control.id = V4L2_CID_FOCUS_AUTO;
+//     control.value = value;
 
-    if (-1 == gphoto2_cam::utils::xioctl(m_fd, static_cast<int>(VIDIOC_S_CTRL), &control)) {
-      std::cerr << "VIDIOC_S_CTRL" << std::endl;
-      return false;
-    }
-  }
-  return true;
-}
+//     if (-1 == gphoto2_cam::utils::xioctl(m_fd, static_cast<int>(VIDIOC_S_CTRL), &control)) {
+//       std::cerr << "VIDIOC_S_CTRL" << std::endl;
+//       return false;
+//     }
+//   }
+//   return true;
+// }
 
 /**
 * Set video device parameter via call to v4l-utils.
