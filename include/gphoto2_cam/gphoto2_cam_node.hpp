@@ -66,7 +66,7 @@ public:
 
   void init();
   void get_params();
-  void assign_params(const std::vector<rclcpp::Parameter> & parameters);
+  bool assign_params(const std::vector<rclcpp::Parameter> & parameters);
   void set_gphoto2_params();
   void update();
   bool take_and_send_image();

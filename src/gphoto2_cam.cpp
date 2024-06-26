@@ -74,10 +74,11 @@ void getWidgetValue(CameraWidget *widget, config_map_t &config_map) {
     // Handle different types of widgets
     // (char*) for GP_WIDGET_MENU, GP_WIDGET_TEXT, GP_WIDGET_RADIO, 
     // (float) for GP_WIDGET_RANGE, 
-    // (int) for GP_WIDGET_DATE, GP_WIDGET_TOGGLE, and (CameraWidgetCallback) for GP_WIDGET_BUTTON. 
+    // (int) for GP_WIDGET_DATE, GP_WIDGET_TOGGLE, and 
+    // (CameraWidgetCallback) for GP_WIDGET_BUTTON. 
     switch (type) {
-        case GP_WIDGET_WINDOW:
-        case GP_WIDGET_SECTION:
+        case GP_WIDGET_WINDOW: break;
+        case GP_WIDGET_SECTION: break;
         case GP_WIDGET_TEXT: {
             char *value;
             if (gp_widget_get_value(widget, &value) == GP_OK) {

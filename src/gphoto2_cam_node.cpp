@@ -257,7 +257,7 @@ void gPhoto2CamNode::get_params()
   assign_params(parameters);
 }
 
-void gPhoto2CamNode::assign_params(const std::vector<rclcpp::Parameter> & parameters)
+bool gPhoto2CamNode::assign_params(const std::vector<rclcpp::Parameter> & parameters)
 {
   for (auto & parameter : parameters) {
     if (parameter.get_name() == "camera_name") {
@@ -274,108 +274,72 @@ void gPhoto2CamNode::assign_params(const std::vector<rclcpp::Parameter> & parame
       m_parameters.image_height = parameter.as_int();
     } else if (parameter.get_name() == "image_width") {
       m_parameters.image_width = parameter.as_int();
-    } else if (parameter.get_name() == "io_method") {
-      // m_parameters.io_method_name = parameter.value_to_string();
-    } else if (parameter.get_name() == "pixel_format") {
-      // m_parameters.pixel_format_name = parameter.value_to_string();
-    } else if (parameter.get_name() == "av_device_format") {
-      // m_parameters.av_device_format = parameter.value_to_string();
-    } else if (parameter.get_name() == "video_device") {
-      // m_parameters.device_name = resolve_device_path(parameter.value_to_string());
-    } else if (parameter.get_name() == "brightness") {
-      // m_parameters.brightness = parameter.as_int();
-    } else if (parameter.get_name() == "contrast") {
-      // m_parameters.contrast = parameter.as_int();
-    } else if (parameter.get_name() == "saturation") {
-      // m_parameters.saturation = parameter.as_int();
-    } else if (parameter.get_name() == "sharpness") {
-      // m_parameters.sharpness = parameter.as_int();
-    } else if (parameter.get_name() == "gain") {
-      // m_parameters.gain = parameter.as_int();
-    } else if (parameter.get_name() == "auto_white_balance") {
-      // m_parameters.auto_white_balance = parameter.as_bool();
-    } else if (parameter.get_name() == "white_balance") {
-      // m_parameters.white_balance = parameter.as_int();
-    } else if (parameter.get_name() == "autoexposure") {
-      // m_parameters.autoexposure = parameter.as_bool();
-    } else if (parameter.get_name() == "exposure") {
-      // m_parameters.exposure = parameter.as_int();
-    } else if (parameter.get_name() == "autofocus") {
-      // m_parameters.autofocus = parameter.as_bool();
-    } else if (parameter.get_name() == "focus") {
-      // m_parameters.focus = parameter.as_int();
+    } else if (m_config_map.find(parameter.get_name()) != m_config_map.end()) {
+      if (auto* char_config = std::get_if<char_config_t>(&m_config_map[parameter.get_name()])) {
+        // Check if the parameter value is in the list of choices
+        if (std::find(char_config->choices.begin(), char_config->choices.end(), parameter.value_to_string()) == char_config->choices.end()) {
+          RCLCPP_WARN(this->get_logger(), "Invalid value for parameter %s: %s", parameter.get_name().c_str(), parameter.value_to_string().c_str());
+          return false; 
+        }
+        char_config->value = parameter.value_to_string();
+      } else if (auto* float_config = std::get_if<float_config_t>(&m_config_map[parameter.get_name()])) {
+        // Check if the parameter value is in the range of the parameter and round to nearest step value
+        if (parameter.as_double() < float_config->min || parameter.as_double() > float_config->max) {
+          RCLCPP_WARN(this->get_logger(), "Invalid value for parameter %s: %f", parameter.get_name().c_str(), parameter.as_double());
+          return false;
+        }
+        // Round to nearest step value
+        float_config->value = round(parameter.as_double() / float_config->increment) * float_config->increment;
+      } else if (auto* int_config = std::get_if<int_config_t>(&m_config_map[parameter.get_name()])) {
+        // Check if the parameter value is 0 or 1, if not, return false
+        if (parameter.as_int() != 0 && parameter.as_int() != 1) {
+          RCLCPP_WARN(this->get_logger(), "Invalid value for parameter %s: %ld", parameter.get_name().c_str(), parameter.as_int());
+          return false;
+        }
+        int_config->value = parameter.as_int();
+      }
     } else {
       RCLCPP_WARN(this->get_logger(), "Invalid parameter name: %s", parameter.get_name().c_str());
+      return false;
     }
+
   }
+
+  return true;
+
 }
 
 /// @brief Send current parameters to V4L2 device
 /// TODO(flynneva): should this actuaully be part of gPhoto2Cam class?
 void gPhoto2CamNode::set_gphoto2_params()
 {
-  // set camera parameters
-  // if (m_parameters.brightness >= 0) {
-  //   RCLCPP_INFO(this->get_logger(), "Setting 'brightness' to %d", m_parameters.brightness);
-  //   // m_camera->set_gphoto2_parameter("brightness", m_parameters.brightness);
+  //  for (const auto& entry : m_config_map) {
+  //     const std::string& key = entry.first;
+
+  //     if (auto* char_config = std::get_if<char_config_t>(&m_config_map[key])) {
+  //         rcl_interfaces::msg::ParameterDescriptor descriptor;
+  //         descriptor.description = char_config->label;
+  //         descriptor.read_only = char_config->readonly;
+  //         for (size_t i = 0; i < char_config->choices.size(); i++) {
+  //             descriptor.additional_constraints += std::string(char_config->choices[i]) + "\n";
+  //         }
+  //         this->declare_parameter(key, std::string(char_config->value), descriptor);
+
+  //     } else if (auto* float_config = std::get_if<float_config_t>(&m_config_map[key])) {
+  //         rcl_interfaces::msg::ParameterDescriptor descriptor;
+  //         descriptor.description = float_config->label;
+  //         descriptor.read_only = float_config->readonly;
+  //         this->declare_parameter(key, float_config->value);
+
+  //     } else if (auto* int_config = std::get_if<int_config_t>(&m_config_map[key])) {
+  //         rcl_interfaces::msg::ParameterDescriptor descriptor;
+  //         descriptor.description = int_config->label;
+  //         descriptor.read_only = int_config->readonly;
+  //         this->declare_parameter(key, int_config->value);
+
+  //     }
   // }
 
-  // if (m_parameters.contrast >= 0) {
-  //   RCLCPP_INFO(this->get_logger(), "Setting 'contrast' to %d", m_parameters.contrast);
-  //   // m_camera->set_gphoto2_parameter("contrast", m_parameters.contrast);
-  // }
-
-  // if (m_parameters.saturation >= 0) {
-  //   RCLCPP_INFO(this->get_logger(), "Setting 'saturation' to %d", m_parameters.saturation);
-  //   // m_camera->set_gphoto2_parameter("saturation", m_parameters.saturation);
-  // }
-
-  // if (m_parameters.sharpness >= 0) {
-  //   RCLCPP_INFO(this->get_logger(), "Setting 'sharpness' to %d", m_parameters.sharpness);
-  //   // m_camera->set_gphoto2_parameter("sharpness", m_parameters.sharpness);
-  // }
-
-  // if (m_parameters.gain >= 0) {
-  //   RCLCPP_INFO(this->get_logger(), "Setting 'gain' to %d", m_parameters.gain);
-  //   // m_camera->set_gphoto2_parameter("gain", m_parameters.gain);
-  // }
-
-  // // check auto white balance
-  // if (m_parameters.auto_white_balance) {
-  //   // m_camera->set_gphoto2_parameter("white_balance_temperature_auto", 1);
-  //   RCLCPP_INFO(this->get_logger(), "Setting 'white_balance_temperature_auto' to %d", 1);
-  // } else {
-  //   RCLCPP_INFO(this->get_logger(), "Setting 'white_balance' to %d", m_parameters.white_balance);
-  //   // m_camera->set_gphoto2_parameter("white_balance_temperature_auto", 0);
-  //   // m_camera->set_gphoto2_parameter("white_balance_temperature", m_parameters.white_balance);
-  // }
-
-  // // check auto exposure
-  // if (!m_parameters.autoexposure) {
-  //   RCLCPP_INFO(this->get_logger(), "Setting 'exposure_auto' to %d", 1);
-  //   RCLCPP_INFO(this->get_logger(), "Setting 'exposure' to %d", m_parameters.exposure);
-  //   // turn down exposure control (from max of 3)
-  //   // m_camera->set_gphoto2_parameter("exposure_auto", 1);
-  //   // change the exposure level
-  //   // m_camera->set_gphoto2_parameter("exposure_absolute", m_parameters.exposure);
-  // } else {
-  //   RCLCPP_INFO(this->get_logger(), "Setting 'exposure_auto' to %d", 3);
-  //   // m_camera->set_gphoto2_parameter("exposure_auto", 3);
-  // }
-
-  // // check auto focus
-  // if (m_parameters.autofocus) {
-  //   // m_camera->set_auto_focus(1);
-  //   RCLCPP_INFO(this->get_logger(), "Setting 'focus_auto' to %d", 1);
-  //   // m_camera->set_gphoto2_parameter("focus_auto", 1);
-  // } else {
-  //   RCLCPP_INFO(this->get_logger(), "Setting 'focus_auto' to %d", 0);
-  //   // m_camera->set_gphoto2_parameter("focus_auto", 0);
-  //   if (m_parameters.focus >= 0) {
-  //     RCLCPP_INFO(this->get_logger(), "Setting 'focus_absolute' to %d", m_parameters.focus);
-  //     // m_camera->set_gphoto2_parameter("focus_absolute", m_parameters.focus);
-  //   }
-  // }
 }
 
 bool gPhoto2CamNode::take_and_send_image()
@@ -435,11 +399,18 @@ rcl_interfaces::msg::SetParametersResult gPhoto2CamNode::parameters_callback(
 {
   RCLCPP_DEBUG(this->get_logger(), "Setting parameters for %s", m_parameters.camera_name.c_str());
   m_timer->reset();
-  assign_params(parameters);
-  set_gphoto2_params();
+  bool ret = assign_params(parameters);
+
   rcl_interfaces::msg::SetParametersResult result;
-  result.successful = true;
-  result.reason = "success";
+  result.successful = ret;
+  if (ret) {
+    RCLCPP_INFO(this->get_logger(), "Parameters set successfully");
+    set_gphoto2_params();
+    result.reason = "success";
+  } else {
+    RCLCPP_ERROR(this->get_logger(), "Failed to set parameters");
+    result.reason = "failure";
+  }
   return result;
 }
 
