@@ -212,9 +212,9 @@ void gPhoto2CamNode::init()
           descriptor.description = char_config->label;
           descriptor.read_only = char_config->readonly;
           for (size_t i = 0; i < char_config->choices.size(); i++) {
-              descriptor.additional_constraints += std::string(char_config->choices[i]) + "\n";
+              descriptor.additional_constraints += char_config->choices[i] + "\n";
           }
-          this->declare_parameter(key, std::string(char_config->value), descriptor);
+          this->declare_parameter(key, char_config->value, descriptor);
 
       } else if (auto* float_config = std::get_if<float_config_t>(&m_config_map[key])) {
           rcl_interfaces::msg::ParameterDescriptor descriptor;
@@ -276,20 +276,37 @@ bool gPhoto2CamNode::assign_params(const std::vector<rclcpp::Parameter> & parame
       m_parameters.image_width = parameter.as_int();
     } else if (m_config_map.find(parameter.get_name()) != m_config_map.end()) {
       if (auto* char_config = std::get_if<char_config_t>(&m_config_map[parameter.get_name()])) {
+
         // Check if the parameter value is in the list of choices
-        if (std::find(char_config->choices.begin(), char_config->choices.end(), parameter.value_to_string()) == char_config->choices.end()) {
+        if (char_config->choices.size() > 0 && std::find(char_config->choices.begin(), char_config->choices.end(), parameter.value_to_string()) == char_config->choices.end()) {
           RCLCPP_WARN(this->get_logger(), "Invalid value for parameter %s: %s", parameter.get_name().c_str(), parameter.value_to_string().c_str());
+          // Print parameter descriptor constraints
+          RCLCPP_WARN(this->get_logger(), "Parameter %s constraints: choices: %s", parameter.get_name().c_str(), this->describe_parameter(parameter.get_name()).additional_constraints.c_str());
           return false; 
         }
         char_config->value = parameter.value_to_string();
+        if (m_camera->set_char_config(*char_config)) {
+          RCLCPP_INFO(this->get_logger(), "Set parameter %s to %s", parameter.get_name().c_str(), parameter.value_to_string().c_str());
+        } else {
+          RCLCPP_WARN(this->get_logger(), "Failed to set parameter %s", parameter.get_name().c_str());
+          return false;
+        }
       } else if (auto* float_config = std::get_if<float_config_t>(&m_config_map[parameter.get_name()])) {
         // Check if the parameter value is in the range of the parameter and round to nearest step value
         if (parameter.as_double() < float_config->min || parameter.as_double() > float_config->max) {
           RCLCPP_WARN(this->get_logger(), "Invalid value for parameter %s: %f", parameter.get_name().c_str(), parameter.as_double());
+          // Print parameter descriptor constraints
+          RCLCPP_WARN(this->get_logger(), "Parameter %s constraints: min: %f, max: %f, increment: %f", parameter.get_name().c_str(), float_config->min, float_config->max, float_config->increment);
           return false;
         }
         // Round to nearest step value
         float_config->value = round(parameter.as_double() / float_config->increment) * float_config->increment;
+        if (m_camera->set_float_config(*float_config)) {
+          RCLCPP_INFO(this->get_logger(), "Set parameter %s to %s", parameter.get_name().c_str(), parameter.value_to_string().c_str());
+        } else {
+          RCLCPP_WARN(this->get_logger(), "Failed to set parameter %s", parameter.get_name().c_str());
+          return false;
+        }
       } else if (auto* int_config = std::get_if<int_config_t>(&m_config_map[parameter.get_name()])) {
         // Check if the parameter value is 0 or 1, if not, return false
         if (parameter.as_int() != 0 && parameter.as_int() != 1) {
@@ -297,6 +314,12 @@ bool gPhoto2CamNode::assign_params(const std::vector<rclcpp::Parameter> & parame
           return false;
         }
         int_config->value = parameter.as_int();
+        if (m_camera->set_int_config(*int_config)) {
+          RCLCPP_INFO(this->get_logger(), "Set parameter %s to %s", parameter.get_name().c_str(), parameter.value_to_string().c_str());
+        } else {
+          RCLCPP_WARN(this->get_logger(), "Failed to set parameter %s", parameter.get_name().c_str());
+          return false;
+        }
       }
     } else {
       RCLCPP_WARN(this->get_logger(), "Invalid parameter name: %s", parameter.get_name().c_str());
@@ -359,7 +382,10 @@ bool gPhoto2CamNode::take_and_send_image()
   }
 
   // grab the image, pass image msg buffer to fill
+
   m_camera->get_image(reinterpret_cast<char *>(&m_image_msg->data[0]));
+
+  RCLCPP_INFO(this->get_logger(), "Size of m_image_msg->data: %zu", m_image_msg->data.size());
 
   auto stamp = m_camera->get_image_timestamp();
   m_image_msg->header.stamp.sec = stamp.tv_sec;

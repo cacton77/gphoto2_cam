@@ -43,6 +43,7 @@ extern "C" {
 #include <string>
 #include <vector>
 #include <variant>
+#include <mutex>
 
 #include "gphoto2_cam/utils.hpp"
 #include "gphoto2_cam/formats/pixel_format_base.hpp"
@@ -238,6 +239,11 @@ public:
   // Set video device parameters
   bool set_gphoto2_parameter(const std::string & param, int value);
   bool set_gphoto2_parameter(const std::string & param, const std::string & value);
+
+  // Set gPhoto2 camera parameters by type
+  bool set_char_config(char_config_t & char_config);
+  bool set_float_config(float_config_t & float_config);
+  bool set_int_config(int_config_t & int_config);
 
   void stop_capturing();
   void start_capturing();
@@ -438,6 +444,8 @@ private:
   GPContext * m_context;
   CameraFile * m_file;
   image_t m_image;
+
+  static std::mutex gp_mutex;
 
   // AVFrame * m_avframe;
   // int m_avframe_size;
