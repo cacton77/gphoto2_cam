@@ -33,6 +33,7 @@
 #include <filesystem>
 #include "gphoto2_cam/gphoto2_cam_node.hpp"
 #include "gphoto2_cam/utils.hpp"
+#include <cv_bridge/cv_bridge.h>
 
 const char BASE_TOPIC_NAME[] = "image_raw";
 
@@ -383,9 +384,20 @@ bool gPhoto2CamNode::take_and_send_image()
 
   // grab the image, pass image msg buffer to fill
 
-  m_camera->get_image(reinterpret_cast<char *>(&m_image_msg->data[0]));
+  // m_camera->get_image(reinterpret_cast<char *>(&m_image_msg->data[0]));
+  cv::Mat image = m_camera->get_image_cv();
 
-  RCLCPP_INFO(this->get_logger(), "Size of m_image_msg->data: %zu", m_image_msg->data.size());
+  // std_msgs::msg::Header header;
+  // header.stamp = rclcpp::Clock().now();
+  // header.frame_id = "camera_frame";
+
+  // sensor_msgs::msg::Image::SharedPtr ros_image = cv_bridge::CvImage(header, "bgr8", image).toImageMsg();
+
+  // Convert the image to a ROS message and assign to m_image_msg->data
+  cv_bridge::CvImage cv_image;
+  cv_image.image = image;
+  cv_image.encoding = sensor_msgs::image_encodings::BGR8;
+  cv_image.toImageMsg(*m_image_msg);
 
   auto stamp = m_camera->get_image_timestamp();
   m_image_msg->header.stamp.sec = stamp.tv_sec;
@@ -407,6 +419,8 @@ bool gPhoto2CamNode::take_and_send_image_mjpeg()
 
   // grab the image, pass image msg buffer to fill
   m_camera->get_image(reinterpret_cast<char *>(&m_compressed_img_msg->data[0]));
+
+  RCLCPP_INFO(this->get_logger(), "Size of m_image_msg->data: %zu", m_image_msg->data.size());
 
   auto stamp = m_camera->get_image_timestamp();
   m_compressed_img_msg->header.stamp.sec = stamp.tv_sec;
@@ -446,9 +460,12 @@ void gPhoto2CamNode::update()
     // If the camera exposure longer higher than the framerate period
     // then that caps the framerate.
     // auto t0 = now();
-    bool isSuccessful = (m_parameters.pixel_format_name == "mjpeg") ?
-      take_and_send_image_mjpeg() :
-      take_and_send_image();
+    bool isSuccessful = (m_parameters.pixel_format_name == "mjpeg");
+    // take_and_send_image_mjpeg();
+    take_and_send_image();
+    // bool isSuccessful = (m_parameters.pixel_format_name == "mjpeg") ?
+      // take_and_send_image_mjpeg() :
+      // take_and_send_image();
     if (!isSuccessful) {
       RCLCPP_WARN_ONCE(this->get_logger(), "USB camera did not respond in time.");
     }

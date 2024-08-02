@@ -44,6 +44,7 @@ extern "C" {
 #include <vector>
 #include <variant>
 #include <mutex>
+#include <opencv2/opencv.hpp>
 
 #include "gphoto2_cam/utils.hpp"
 #include "gphoto2_cam/formats/pixel_format_base.hpp"
@@ -172,6 +173,7 @@ typedef struct
 typedef struct
 {
   char * data;
+  cv::Mat image;
   size_t width;
   size_t height;
   // std::shared_ptr<pixel_format_base> pixel_format;
@@ -226,10 +228,13 @@ public:
   ///   image_msg.data.resize(step * height);
   ///   memcpy(&image_msg.data[0], new_image->frame.base, image_msg.data.size());
   char * get_image();
+  cv::Mat get_image_cv();
 
   /// @brief Overload of get_image to allow users to pass
   /// in an image pointer to fill in
   void get_image(char * destination);
+
+  void get_image(cv::Mat & destination);
 
   // std::vector<capture_format_t> get_supported_formats();
 

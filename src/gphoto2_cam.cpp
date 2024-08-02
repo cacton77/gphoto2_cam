@@ -44,6 +44,7 @@ extern "C" {
 #include <string>
 #include <vector>
 
+#include "opencv2/opencv.hpp"
 #include "opencv2/imgproc.hpp"
 
 #include "gphoto2_cam/gphoto2_cam.hpp"
@@ -399,6 +400,16 @@ char * gPhoto2Cam::get_image()
   return m_image.data;
 }
 
+cv::Mat gPhoto2Cam::get_image_cv()
+{
+  // if ((m_image.width == 0) || (m_image.height == 0)) {
+  //   return nullptr;
+  // }
+  // grab the image
+  grab_image();
+  return m_image.image;
+}
+
 /// @brief Overload get_image so users can pass in an image pointer to fill
 /// @param destination destination to fill in with image
 void gPhoto2Cam::get_image(char * destination)
@@ -411,6 +422,7 @@ void gPhoto2Cam::get_image(char * destination)
 
   // grab the image
   grab_image();
+
 }
 
 void gPhoto2Cam::grab_image()
@@ -451,14 +463,25 @@ void gPhoto2Cam::grab_image()
     delete[] m_image.data;
   }
 
-  m_image.data = new char[size];
-  // m_image.size_in_bytes = size;
+  // std::cout << "Image size: " << size << std::endl;
 
-  std::memcpy(m_image.data, data, size);
+  std::vector<uchar> jpeg_data(data, data + size);
+  cv::Mat image = cv::imdecode(jpeg_data, cv::IMREAD_COLOR);
+  if (image.empty()) {
+      std::cerr << "Failed to decode image data." << std::endl;
+      gp_file_free(m_file);
+      return;
+  }
+
+  m_image.image = image.clone();
+
+  // Print size of m_image.image
+  std::cout << "Image size: " << m_image.image.size() << std::endl;
 
   clock_gettime(CLOCK_REALTIME, &m_image.stamp);
 
-  std::cout << "Size of m_image.data: " << size << " bytes" << std::endl;
+  // Print size of m_image.data
+
 
   // Step 4: Assign data to m_image
   // Assuming m_image.data is a suitable container for the image data, like std::vector<char>
