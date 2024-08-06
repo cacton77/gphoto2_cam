@@ -475,9 +475,6 @@ void gPhoto2Cam::grab_image()
 
   m_image.image = image.clone();
 
-  // Print size of m_image.image
-  std::cout << "Image size: " << m_image.image.size() << std::endl;
-
   clock_gettime(CLOCK_REALTIME, &m_image.stamp);
 
   // Print size of m_image.data

@@ -418,9 +418,17 @@ bool gPhoto2CamNode::take_and_send_image_mjpeg()
   }
 
   // grab the image, pass image msg buffer to fill
-  m_camera->get_image(reinterpret_cast<char *>(&m_compressed_img_msg->data[0]));
+  // m_camera->get_image(reinterpret_cast<char *>(&m_compressed_img_msg->data[0]));
+
+  cv::Mat image = m_camera->get_image_cv();
 
   RCLCPP_INFO(this->get_logger(), "Size of m_image_msg->data: %zu", m_image_msg->data.size());
+
+  cv_bridge::CvImage cv_image;
+  cv_image.image = image;
+  cv_image.encoding = sensor_msgs::image_encodings::BGR8;
+  // Convert cv_image to compressed image message
+  cv_image.toCompressedImageMsg(*m_compressed_img_msg);
 
   auto stamp = m_camera->get_image_timestamp();
   m_compressed_img_msg->header.stamp.sec = stamp.tv_sec;
