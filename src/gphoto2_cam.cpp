@@ -94,6 +94,10 @@ void getWidgetValue(CameraWidget *widget, config_map_t &config_map) {
     //   label = "";
     // }
 
+    std::cout << type << std::endl;
+    std::cout << name << std::endl;
+    std::cout << label << std::endl;
+
     switch (type) {
         case GP_WIDGET_WINDOW: break;
         case GP_WIDGET_SECTION: break;
@@ -169,13 +173,16 @@ void getWidgetValue(CameraWidget *widget, config_map_t &config_map) {
 
                 // New code to print choices
                 int choiceCount = gp_widget_count_choices(widget);
+                std::cout << "\t" << "Choices: " << std::endl;
                 for (int i = 0; i < choiceCount; ++i) {
                     const char* choice;
                     if (choice == nullptr) {
                       continue;
                     }
                     if (gp_widget_get_choice(widget, i, &choice) == GP_OK) {
+                        std::cout << "\t\t" << "- " << choice << std::endl;
                         choices.push_back(std::string(choice));
+                        std::cout << "Choice: " << choice << std::endl;
                     }
                 }
                 config_map[name] = char_config_t{
