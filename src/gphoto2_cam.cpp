@@ -65,9 +65,13 @@ struct ConfigOption {
 };
 
 void getWidgetValue(CameraWidget *widget, config_map_t &config_map) {
+
     const char *name;
     gp_widget_get_name(widget, &name);
 
+    // if (name == nullptr) {
+    //   name = "";
+    // }
 
     CameraWidgetType type;
     gp_widget_get_type(widget, &type);
@@ -77,18 +81,31 @@ void getWidgetValue(CameraWidget *widget, config_map_t &config_map) {
     // (float) for GP_WIDGET_RANGE, 
     // (int) for GP_WIDGET_DATE, GP_WIDGET_TOGGLE, and 
     // (CameraWidgetCallback) for GP_WIDGET_BUTTON. 
+
+    int id;
+    int readonly;
+    const char* label;
+
+    gp_widget_get_id(widget, &id);
+    gp_widget_get_readonly(widget, &readonly);
+    gp_widget_get_label(widget, &label);
+
+    // if (label == nullptr) {
+    //   label = "";
+    // }
+
+    std::cout << type << std::endl;
+    std::cout << name << std::endl;
+    std::cout << label << std::endl;
+
     switch (type) {
         case GP_WIDGET_WINDOW: break;
         case GP_WIDGET_SECTION: break;
         case GP_WIDGET_TEXT: {
             char *value;
             if (gp_widget_get_value(widget, &value) == GP_OK) {
-                int id;
-                int readonly;
-                const char* label;
-                gp_widget_get_id(widget, &id);
-                gp_widget_get_readonly(widget, &readonly);
-                gp_widget_get_label(widget, &label);
+
+
                 config_map[name] = char_config_t{
                   name, label, id, readonly, value, {}
                 };
@@ -104,17 +121,12 @@ void getWidgetValue(CameraWidget *widget, config_map_t &config_map) {
         case GP_WIDGET_RANGE: {
             float value;
             if (gp_widget_get_value(widget, &value) == GP_OK) {
-                int id;
-                int readonly;
-                const char* label;
                 float min;
                 float max;
                 float increment;
 
-                gp_widget_get_id(widget, &id);
-                gp_widget_get_readonly(widget, &readonly);
-                gp_widget_get_label(widget, &label);
                 gp_widget_get_range(widget, &min, &max, &increment);
+
                 config_map[name] = float_config_t{
                   name, label, id, readonly, value, min, max, increment
                 };
@@ -134,12 +146,7 @@ void getWidgetValue(CameraWidget *widget, config_map_t &config_map) {
         case GP_WIDGET_TOGGLE: {
             int value;
             if (gp_widget_get_value(widget, &value) == GP_OK) {
-                int id;
-                int readonly;
-                const char* label;
-                gp_widget_get_id(widget, &id);
-                gp_widget_get_readonly(widget, &readonly);
-                gp_widget_get_label(widget, &label);
+
                 config_map[name] = int_config_t{
                   name, label, id, readonly, value
                 };
@@ -157,27 +164,25 @@ void getWidgetValue(CameraWidget *widget, config_map_t &config_map) {
         case GP_WIDGET_RADIO: {
             char *value;
             if (gp_widget_get_value(widget, &value) == GP_OK) {
-                int id;
-                int readonly;
-                const char* label;
+              if (value == nullptr) {
+                std::cout << "Choice is null" << std::endl;
+              }
+              else {
+
                 std::vector<std::string>  choices;
-                gp_widget_get_id(widget, &id);
-                gp_widget_get_readonly(widget, &readonly);
-                gp_widget_get_label(widget, &label);
-                // std::cout << name << ": " << std::endl;
-                // std::cout << "\t" << "Type: " << "RADIO" << std::endl;
-                // std::cout << "\t" << "ID: " << id << std::endl;
-                // std::cout << "\t" << "Read only: " << readonly << std::endl;
-                // std::cout << "\t" << "Label: " << label << std::endl;
-                // std::cout << "\t" << "Value: " << value << std::endl;
+
                 // New code to print choices
                 int choiceCount = gp_widget_count_choices(widget);
-                // std::cout << "\t" << "Choices: " << std::endl;
+                std::cout << "\t" << "Choices: " << std::endl;
                 for (int i = 0; i < choiceCount; ++i) {
                     const char* choice;
+                    if (choice == nullptr) {
+                      continue;
+                    }
                     if (gp_widget_get_choice(widget, i, &choice) == GP_OK) {
-                        // std::cout << "\t\t" << "- " << choice << std::endl;
+                        std::cout << "\t\t" << "- " << choice << std::endl;
                         choices.push_back(std::string(choice));
+                        std::cout << "Choice: " << choice << std::endl;
                     }
                 }
                 config_map[name] = char_config_t{
@@ -188,6 +193,7 @@ void getWidgetValue(CameraWidget *widget, config_map_t &config_map) {
                   std::string(value), 
                   choices 
                 };
+              }
                 // options.push_back({name, value});
             }
             break;
@@ -195,12 +201,7 @@ void getWidgetValue(CameraWidget *widget, config_map_t &config_map) {
         case GP_WIDGET_BUTTON: {
             int value;
             if (gp_widget_get_value(widget, &value) == GP_OK) {
-                int id;
-                int readonly;
-                const char* label;
-                gp_widget_get_id(widget, &id);
-                gp_widget_get_readonly(widget, &readonly);
-                gp_widget_get_label(widget, &label);
+
                 // std::cout << name << ": " << std::endl;
                 // std::cout << "\t" << "Type: " << "BUTTON" << std::endl;
                 // std::cout << "\t" << "ID: " << id << std::endl;
@@ -370,6 +371,8 @@ void gPhoto2Cam::configure(
   std::cout << "Config loaded." << std::endl;
 
   getWidgetValue(rootWidget, config_map);
+
+  std::cout << "Config parsed." << std::endl;
 
   gp_widget_free(rootWidget);
 
