@@ -407,6 +407,9 @@ bool gPhoto2CamNode::take_and_send_image()
 
   *m_camera_info_msg = m_camera_info->getCameraInfo();
   m_camera_info_msg->header = m_image_msg->header;
+
+  auto before_publish = std::chrono::high_resolution_clock::now();
+
   m_image_publisher->publish(*m_image_msg, *m_camera_info_msg);
 
   auto end = std::chrono::high_resolution_clock::now();
@@ -414,6 +417,7 @@ bool gPhoto2CamNode::take_and_send_image()
   RCLCPP_INFO(this->get_logger(), "Resize time: %ld ms", std::chrono::duration_cast<std::chrono::milliseconds>(after_resize - start).count());
   RCLCPP_INFO(this->get_logger(), "Grab time: %ld ms", std::chrono::duration_cast<std::chrono::milliseconds>(after_grab - after_resize).count());
   RCLCPP_INFO(this->get_logger(), "Conversion time: %ld ms", std::chrono::duration_cast<std::chrono::milliseconds>(after_conversion - after_grab).count());
+  RCLCPP_INFO(this->get_logger(), "Publish time: %ld ms", std::chrono::duration_cast<std::chrono::milliseconds>(end - before_publish).count());
   RCLCPP_INFO(this->get_logger(), "Total time: %ld ms", std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count());
 
   return true;
