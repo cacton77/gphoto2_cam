@@ -408,6 +408,8 @@ bool gPhoto2Cam::capture_image(const std::string & path)
       expanded_path.replace(pos, 1, home_dir);
   }
 
+  // Print expanded path
+  std::cout << "Expanded path: " << expanded_path << std::endl;
 
   // Capture image using gphoto2
   int ret;
