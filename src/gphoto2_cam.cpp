@@ -397,19 +397,19 @@ bool gPhoto2Cam::capture_image(const std::string & path)
   std::lock_guard<std::mutex> lock(gp_mutex);
 
   // If filename begins with ~, get root directory of user and replace ~ with root directory
-  const char *home = std::getenv("HOME");
-  if (home == nullptr) {
-      throw std::runtime_error("HOME environment variable not set");
-  }
-  std::string home_dir(home);
-  std::string expanded_path = path;
-  size_t pos = expanded_path.find("~");
-  if (pos != std::string::npos) {
-      expanded_path.replace(pos, 1, home_dir);
-  }
+  // const char *home = std::getenv("HOME");
+  // if (home == nullptr) {
+  //     throw std::runtime_error("HOME environment variable not set");
+  // }
+  // std::string home_dir(home);
+  // std::string expanded_path = path;
+  // size_t pos = expanded_path.find("~");
+  // if (pos != std::string::npos) {
+  //     expanded_path.replace(pos, 1, home_dir);
+  // }
 
   // Print expanded path
-  std::cout << "Expanded path: " << expanded_path << std::endl;
+  // std::cout << "Expanded path: " << expanded_path << std::endl;
 
   // Capture image using gphoto2
   int ret;
@@ -418,7 +418,7 @@ bool gPhoto2Cam::capture_image(const std::string & path)
 
   // Set the camera file path
   strcpy(camera_file_path.folder, "/");
-  strcpy(camera_file_path.name, expanded_path.c_str());
+  strcpy(camera_file_path.name, path.c_str());
 
   // Capture image
   ret = gp_camera_capture(m_camera, GP_CAPTURE_IMAGE, &camera_file_path, m_context);
@@ -443,7 +443,7 @@ bool gPhoto2Cam::capture_image(const std::string & path)
   }
 
   // Save the file
-  ret = gp_file_save(file, expanded_path.c_str());
+  ret = gp_file_save(file, path.c_str());
   if (ret < GP_OK) {
     std::cerr << "Failed to save file for captured image." << std::endl;
     gp_file_free(file);
