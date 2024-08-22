@@ -391,6 +391,56 @@ void gPhoto2Cam::shutdown()
   close_device();
 }
 
+bool gPhoto2Cam::capture_image(const std::string & filename)
+{
+
+  std::lock_guard<std::mutex> lock(gp_mutex);
+
+  // Capture image using gphoto2
+  int ret;
+  CameraFile *file;
+  CameraFilePath camera_file_path;
+
+  // Set the camera file path
+  strcpy(camera_file_path.folder, "/");
+  strcpy(camera_file_path.name, filename.c_str());
+
+  // Capture image
+  ret = gp_camera_capture(m_camera, GP_CAPTURE_IMAGE, &camera_file_path, m_context);
+  if (ret < GP_OK) {
+    std::cerr << "Failed to capture image: " << gp_result_as_string(ret) << std::endl;
+    return false;
+  }
+
+  // Create a new file object
+  ret = gp_file_new(&file);
+  if (ret < GP_OK) {
+    std::cerr << "Failed to create file object for captured image." << std::endl;
+    return false;
+  }
+
+  // Get the file
+  ret = gp_camera_file_get(m_camera, camera_file_path.folder, camera_file_path.name, GP_FILE_TYPE_NORMAL, file, m_context);
+  if (ret < GP_OK) {
+    std::cerr << "Failed to get file for captured image." << std::endl;
+    gp_file_free(file);
+    return false;
+  }
+
+  // Save the file
+  ret = gp_file_save(file, filename.c_str());
+  if (ret < GP_OK) {
+    std::cerr << "Failed to save file for captured image." << std::endl;
+    gp_file_free(file);
+    return false;
+  }
+
+  // Free the file
+  gp_file_free(file);
+
+  return true;
+}
+
 /// @brief Grab new image from V4L2 device, return pointer to image
 /// @return pointer to image data
 char * gPhoto2Cam::get_image()

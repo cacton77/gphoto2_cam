@@ -34,6 +34,7 @@
 #include "gphoto2_cam/gphoto2_cam_node.hpp"
 #include "gphoto2_cam/utils.hpp"
 #include <cv_bridge/cv_bridge.h>
+#include "inspection_srvs/srv/capture_image.hpp" 
 
 const char BASE_TOPIC_NAME[] = "image_raw";
 
@@ -53,14 +54,13 @@ gPhoto2CamNode::gPhoto2CamNode(const rclcpp::NodeOptions & node_options)
   m_parameters(),
   m_camera_info_msg(new sensor_msgs::msg::CameraInfo()),
   m_service_capture(
-    this->create_service<std_srvs::srv::SetBool>(
-      "set_capture",
+    this->create_service<inspection_srvs::srv::CaptureImage>(
+      "capture_image",
       std::bind(
         &gPhoto2CamNode::service_capture,
         this,
         std::placeholders::_1,
-        std::placeholders::_2,
-        std::placeholders::_3)))
+        std::placeholders::_2)))
 {
   // declare params
   this->declare_parameter("camera_name", "default_cam");
@@ -108,18 +108,13 @@ gPhoto2CamNode::~gPhoto2CamNode()
 }
 
 void gPhoto2CamNode::service_capture(
-  const std::shared_ptr<rmw_request_id_t> request_header,
-  const std::shared_ptr<std_srvs::srv::SetBool::Request> request,
-  std::shared_ptr<std_srvs::srv::SetBool::Response> response)
+  const std::shared_ptr<inspection_srvs::srv::CaptureImage::Request> request,
+  std::shared_ptr<inspection_srvs::srv::CaptureImage::Response> response)
 {
-  (void) request_header;
-  if (request->data) {
-    m_camera->start_capturing();
-    response->message = "Start Capturing";
-  } else {
-    m_camera->stop_capturing();
-    response->message = "Stop Capturing";
-  }
+  // Print request->file_path which is a string
+  RCLCPP_INFO(this->get_logger(), "Request to capture image at %s", request->file_path.c_str());
+  response->success = m_camera->capture_image(request->file_path);
+  RCLCPP_INFO(this->get_logger(), "Capture image success: %d", response->success);
 }
 
 std::string resolve_device_path(const std::string & path)

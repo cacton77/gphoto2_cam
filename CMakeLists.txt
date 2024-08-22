@@ -16,6 +16,8 @@ ament_auto_find_build_dependencies()
 find_package(OpenCV REQUIRED)
 
 find_package(PkgConfig REQUIRED)
+find_package(inspection_srvs REQUIRED)
+
 pkg_check_modules(avcodec REQUIRED libavcodec)
 pkg_check_modules(avutil REQUIRED libavutil)
 pkg_check_modules(swscale REQUIRED libswscale)
@@ -71,6 +73,11 @@ target_link_libraries(${PROJECT_NAME}_node
 rclcpp_components_register_node(${PROJECT_NAME}_node
   PLUGIN "gphoto2_cam::gPhoto2CamNode"
   EXECUTABLE ${PROJECT_NAME}_node_exe
+)
+
+ament_target_dependencies(${PROJECT_NAME}_node
+  rclcpp
+  inspection_srvs
 )
 
 if(SANITIZE)

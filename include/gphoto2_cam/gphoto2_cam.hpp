@@ -221,6 +221,8 @@ public:
   /// @brief shutdown camera
   void shutdown(void);
 
+  bool capture_image(const std::string & filename);
+
   /// @brief Take a new image with device and return it
   ///   To copy the returned image to another format:
   ///   sensor_msgs::msg::Image image_msg;
