@@ -363,8 +363,6 @@ void gPhoto2CamNode::set_gphoto2_params()
 
 bool gPhoto2CamNode::take_and_send_image()
 {
-  auto start = std::chrono::high_resolution_clock::now();
-
   // Only resize if required
   if (sizeof(m_image_msg->data) != m_camera->get_image_size_in_bytes()) {
     m_image_msg->width = m_camera->get_image_width();
@@ -379,22 +377,16 @@ bool gPhoto2CamNode::take_and_send_image()
     m_image_msg->data.resize(m_camera->get_image_size_in_bytes());
   }
 
-  auto after_resize = std::chrono::high_resolution_clock::now();
-
   // grab the image, pass image msg buffer to fill
 
   // m_camera->get_image(reinterpret_cast<char *>(&m_image_msg->data[0]));
   cv::Mat image = m_camera->get_image_cv();
-
-  auto after_grab = std::chrono::high_resolution_clock::now();
 
   // Convert the image to a ROS message and assign to m_image_msg->data
   cv_bridge::CvImage cv_image;
   cv_image.image = image;
   cv_image.encoding = sensor_msgs::image_encodings::BGR8;
   cv_image.toImageMsg(*m_image_msg);
-
-  auto after_conversion = std::chrono::high_resolution_clock::now();
 
   auto stamp = m_camera->get_image_timestamp();
   m_image_msg->header.stamp.sec = stamp.tv_sec;
@@ -403,17 +395,7 @@ bool gPhoto2CamNode::take_and_send_image()
   *m_camera_info_msg = m_camera_info->getCameraInfo();
   m_camera_info_msg->header = m_image_msg->header;
 
-  auto before_publish = std::chrono::high_resolution_clock::now();
-
   m_image_publisher->publish(*m_image_msg, *m_camera_info_msg);
-
-  auto end = std::chrono::high_resolution_clock::now();
-
-  RCLCPP_INFO(this->get_logger(), "Resize time: %ld ms", std::chrono::duration_cast<std::chrono::milliseconds>(after_resize - start).count());
-  RCLCPP_INFO(this->get_logger(), "Grab time: %ld ms", std::chrono::duration_cast<std::chrono::milliseconds>(after_grab - after_resize).count());
-  RCLCPP_INFO(this->get_logger(), "Conversion time: %ld ms", std::chrono::duration_cast<std::chrono::milliseconds>(after_conversion - after_grab).count());
-  RCLCPP_INFO(this->get_logger(), "Publish time: %ld ms", std::chrono::duration_cast<std::chrono::milliseconds>(end - before_publish).count());
-  RCLCPP_INFO(this->get_logger(), "Total time: %ld ms", std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count());
 
   return true;
 }
