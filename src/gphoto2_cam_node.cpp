@@ -417,7 +417,7 @@ bool gPhoto2CamNode::take_and_send_image_mjpeg()
 
   cv_bridge::CvImage cv_image;
   cv_image.image = image;
-  cv_image.encoding = sensor_msgs::image_encodings::BGR8;
+  cv_image.encoding = sensor_msgs::image_encodings::TYPE_32FC1;
   // Convert cv_image to compressed image message
   cv_image.toCompressedImageMsg(*m_compressed_img_msg);
 
